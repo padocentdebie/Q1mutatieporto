@@ -3,36 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>🚨 Q1 Porto Training - Mutatie & Livefeed</title>
+    <title>🚨 Q1 Porto Training - Automatische rol</title>
     
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
-            authDomain: "speeltuin-recherche.firebaseapp.com",
-            databaseURL: "https://speeltuin-recherche-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "speeltuin-recherche",
-            storageBucket: "speeltuin-recherche.firebasestorage.app",
-            messagingSenderId: "499912834123",
-            appId: "1:499912834123:web:3c84cbf4d5eb13131961ce"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        window.firebaseDB = database;
-        window.firebaseRef = ref;
-        window.firebasePush = push;
-        window.firebaseSet = set;
-        window.firebaseOnValue = onValue;
-        window.firebaseRemove = remove;
-        window.firebaseServerTimestamp = serverTimestamp;
-        console.log('✅ Firebase geïnitialiseerd');
-    </script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -117,8 +91,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .mutatie-form { background: #0d1624; border-radius: 12px; padding: 16px; margin-top: 8px; }
-        .mutatie-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .livefeed { margin-top: 12px; }
         .mutatie-card {
             background: #0d1624; border-radius: 12px; padding: 14px; margin-bottom: 12px;
             border: 1px solid #2a3a4a; border-left: 4px solid #4a90d9;
@@ -129,9 +101,7 @@
         .mutatie-card .mutatie-field { margin-bottom: 4px; font-size: 0.85rem; }
         .mutatie-card .mutatie-field strong { color: #aabbcc; }
         .feedback-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid #2a3a4a; }
-        .feedback-item {
-            background: #1a2a3a; border-radius: 8px; padding: 8px; margin-bottom: 6px; font-size: 0.8rem;
-        }
+        .feedback-item { background: #1a2a3a; border-radius: 8px; padding: 8px; margin-bottom: 6px; font-size: 0.8rem; }
         .feedback-item .fb-auteur { color: #6c5ce7; font-weight: bold; }
         .feedback-form { display: flex; gap: 6px; margin-top: 8px; }
         .feedback-form input { flex: 1; font-size: 0.8rem; padding: 8px; }
@@ -155,19 +125,16 @@
         .confirm-dialog p { margin-bottom: 16px; }
         .confirm-dialog .btn-row { display: flex; gap: 8px; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
-        .w-hint {
-            display: inline-block; background: #f0c040; color: #1a2332; padding: 2px 8px;
-            border-radius: 8px; font-size: 0.7rem; font-weight: bold; margin-right: 4px;
-        }
+        .w-hint { display: inline-block; background: #f0c040; color: #1a2332; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; margin-right: 4px; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <!-- ========== LOGIN SCHERM ========== -->
+    <!-- LOGIN SCHERM (zonder rolkeuze) -->
     <div id="loginScreen" class="container">
         <h1>🚨 Q1 Porto Training</h1>
-        <p class="sub">Oefen auditieve info omzetten naar schriftelijke mutaties</p>
+        <p class="sub">Auditieve informatie omzetten naar schriftelijke mutaties</p>
         
         <div class="form-group">
             <label>👤 Jouw Voornaam</label>
@@ -187,35 +154,15 @@
             </select>
         </div>
         
-        <div class="form-group">
-            <label>👮 Jouw Rol</label>
-            <select id="roleSelect">
-                <optgroup label="Politie (Met Porto)">
-                    <option value="Agent">Agent</option>
-                    <option value="Commandant">Commandant</option>
-                    <option value="CollegaDienstwapen">Collega met getrokken dienstwapen</option>
-                    <option value="AangeslotenKoppel">Aangesloten koppel</option>
-                </optgroup>
-                <optgroup label="Betrokkenen (Geen Porto)">
-                    <option value="Verdachte">Verdachte</option>
-                    <option value="Slachtoffer">Slachtoffer / Benadeelde</option>
-                    <option value="Getuige">Getuige / Aangever</option>
-                </optgroup>
-                <optgroup label="Ondersteuning">
-                    <option value="OC">Operationeel Centrum (OC)</option>
-                </optgroup>
-            </select>
-        </div>
-        
         <button class="btn btn-success" id="connectBtn">🔗 Verbinding Maken</button>
         <div id="loginError" class="error"></div>
         <div class="info-text">
-            <strong>Q1 Training:</strong> Luister via porto → Noteer de 7 gouden W's<br>
-            Deel alle info met het Operationeel Centrum!
+            <strong>Q1 Training:</strong> Jouw rol wordt automatisch toegewezen.<br>
+            Luister via porto → noteer de 7 gouden W's voor het Operationeel Centrum!
         </div>
     </div>
 
-    <!-- ========== HOOFDSCHERM ========== -->
+    <!-- HOOFDSCHERM -->
     <div id="wtScreen" class="hidden">
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="tab-porto">📻 Porto</button>
@@ -256,7 +203,7 @@
                 </div>
                 
                 <div style="background:#0d1624; border-radius:8px; padding:8px; margin-top:8px; font-size:0.8rem; color:#f0c040;">
-                    <strong>🎯 Vergeet niet:</strong> Alle 7 W's moeten via de porto naar het Operationeel Centrum!
+                    <strong>🎯 Vergeet niet:</strong> Alle 7 W's via de porto naar het Operationeel Centrum!
                     <br><span class="w-hint">Wie</span><span class="w-hint">Wat</span><span class="w-hint">Waar</span><span class="w-hint">Wanneer</span><span class="w-hint">Waarmee</span><span class="w-hint">Wijze</span><span class="w-hint">Waarom</span>
                 </div>
                 
@@ -280,45 +227,19 @@
             </div>
         </div>
         
-        <!-- TAB 2: MUTATIE FORMULIER -->
+        <!-- TAB 2: MUTATIE -->
         <div id="tab-mutatie" class="tab-content">
             <div class="container">
                 <h2>📝 Mutatie Formulier</h2>
                 <p class="sub">Klas: <strong id="mutatieKlas">-</strong> | Scenario: <strong id="mutatieScenario">-</strong></p>
-                <p style="text-align:center; font-size:0.8rem; color:#f0c040; margin-bottom:12px;">
-                    Verzamel alle 7 gouden W's via de porto en verwerk ze hieronder
-                </p>
-                
                 <div class="mutatie-form">
-                    <div class="form-group">
-                        <label><span class="w-hint">W1</span> WIE - Betrokken personen (slachtoffer, verdachte, getuige, aangever)</label>
-                        <textarea id="mutWie" placeholder="Beschrijf alle betrokken personen..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W2</span> WAT - Wat is er precies gebeurd?</label>
-                        <textarea id="mutWat" placeholder="Beschrijf de gebeurtenis feitelijk en zakelijk..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W3</span> WAAR - Locatie en plaats delict</label>
-                        <textarea id="mutWaar" placeholder="Adres, specifieke plek, waar zijn sporen achtergelaten?"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W4</span> WANNEER - Datum en tijdstip</label>
-                        <input type="datetime-local" id="mutWanneer" />
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W5</span> WAARMEE - Voorwerp, middel of gereedschap</label>
-                        <textarea id="mutWaarmee" placeholder="Welk(e) voorwerp(en) of middel(en) zijn gebruikt?"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W6</span> WELKE WIJZE - Hoe is het uitgevoerd?</label>
-                        <textarea id="mutWijze" placeholder="Modus operandi: de aanpak, handeling of werkwijze..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label><span class="w-hint">W7</span> WAAROM - Motief of aanleiding</label>
-                        <textarea id="mutWaarom" placeholder="Wat was de mogelijke aanleiding of het motief?"></textarea>
-                    </div>
-                    
+                    <div class="form-group"><label><span class="w-hint">W1</span> WIE</label><textarea id="mutWie"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W2</span> WAT</label><textarea id="mutWat"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W3</span> WAAR</label><textarea id="mutWaar"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W4</span> WANNEER</label><input type="datetime-local" id="mutWanneer" /></div>
+                    <div class="form-group"><label><span class="w-hint">W5</span> WAARMEE</label><textarea id="mutWaarmee"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W6</span> WELKE WIJZE</label><textarea id="mutWijze"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W7</span> WAAROM</label><textarea id="mutWaarom"></textarea></div>
                     <button class="btn btn-primary" id="submitMutatieBtn">📤 Mutatie Inleveren</button>
                     <div class="save-indicator" id="saveIndicator"></div>
                 </div>
@@ -332,620 +253,485 @@
                     <h2 style="margin-bottom:0; border-bottom:none; padding-bottom:0;">📋 Livefeed - Klas <span id="feedKlas">-</span></h2>
                     <button class="btn btn-reset" id="resetDbBtn" style="width:auto; padding:8px 16px; font-size:0.8rem;">🗑️ Reset</button>
                 </div>
-                <p class="sub" style="margin-bottom:8px;">Ingediende mutaties en peer-feedback</p>
-                <div id="livefeedContainer">
-                    <div class="empty-state">⏳ Wachten op mutaties...</div>
-                </div>
+                <div id="livefeedContainer"><div class="empty-state">⏳ Wachten op mutaties...</div></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bevestigingsdialog voor reset -->
+<!-- Reset bevestiging -->
 <div class="overlay hidden" id="resetOverlay"></div>
 <div class="confirm-dialog hidden" id="resetDialog">
-    <p>⚠️ Weet je zeker dat je ALLE mutaties en feedback voor klas <strong id="resetDialogKlas">-</strong> wilt verwijderen?</p>
-    <p style="font-size:0.8rem; color:#8899aa;">Dit kan niet ongedaan worden gemaakt!</p>
+    <p>⚠️ Alle mutaties en feedback voor klas <strong id="resetDialogKlas">-</strong> verwijderen?</p>
     <div class="btn-row">
         <button class="btn btn-secondary" id="cancelResetBtn" style="flex:1;">Annuleren</button>
         <button class="btn btn-reset" id="confirmResetBtn" style="flex:1;">🗑️ Verwijder Alles</button>
     </div>
 </div>
 
-<script>
-// ================================================================
-//  Q1 PORTO TRAINING - 4 NIEUWE SCENARIO'S
-//  Focus: auditieve info → schriftelijke mutatie met 7 gouden W's
-// ================================================================
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const SCENARIOS = {
-    "VERWARD": {
-        id: "VERWARD",
-        titel: "Verwarde Vrouw in Winkelcentrum",
-        context: "Melding van een verwarde vrouw in winkelcentrum 'De Passage'. Ze loopt schreeuwend rond, gooit met spullen uit haar tas en maakt winkelend publiek bang. Beveiliging heeft haar omsingeld maar durft niet in te grijpen.",
-        rollen: {
-            "Verdachte": {
-                beschrijving: "Jij bent de verwarde vrouw (naam: mevrouw De Vries, 62 jaar). Je bent in de war, je denkt dat mensen je achtervolgen. Je gooit met spullen uit je handtas (een thermosfles, een broodtrommel, losse papieren) naar omstanders. Je schreeuwt: 'Blijf van me af! Jullie stelen mijn gedachten!' Je hebt ook een aansteker in je hand waarmee je zwaait.",
-                tips: "Je bent paranoïde en bang. Je weet niet goed waar je bent. Roep dingen als: 'Waar is mijn zoon? Hij zou me ophalen! Jullie zijn niet te vertrouwen!' De thermosfles heb je al gegooid, die ligt nu kapot op de grond bij de HEMA. Je zwaait met de aansteker maar steekt niets aan. Je hebt een blauwe regenjas aan en een rood mutsje."
-            },
-            "Slachtoffer": {
-                beschrijving: "Jij bent winkelier bij de HEMA (naam: Kim, 24 jaar). De verwarde vrouw gooide haar thermosfles richting jouw winkel. De fles is kapot op de grond, er ligt koffie overal. Jij bent niet geraakt maar schrok enorm. Je hebt gezien dat de vrouw ook een aansteker in haar hand heeft. Je hebt de beveiliging gebeld.",
-                tips: "Vertel de politie: 'Die vrouw gooide een thermosfles naar mijn winkel! Hij is kapot, er ligt koffie en glas. Ze heeft ook een aansteker. Ze schreeuwt over haar zoon. Ze lijkt in de war. Ze draagt een blauwe jas en een rood mutsje.'"
-            },
-            "Getuige": {
-                beschrijving: "Jij bent een voorbijganger (naam: meneer Bakker, 55 jaar). Je stond bij de bakker toen de vrouw begon te schreeuwen. Je hebt gezien dat ze uit haar tas spullen begon te gooien: eerst een broodtrommel, toen de thermosfles richting HEMA, daarna losse papieren. Je hoorde haar roepen over 'gedachten die gestolen worden' en 'mijn zoon'. Je hebt 112 gebeld. Het gebeurde rond 14:15 uur.",
-                tips: "Vertel de agent: 'Het begon rond 14:15 uur bij de bakkerij. Ze gooide een broodtrommel, toen een thermosfles naar de HEMA. Ze heeft nog een aansteker. Ze schreeuwt over gedachten-diefstal en haar zoon. Volgens mij is ze psychisch in de war. Ze draagt blauwe jas, rood mutsje.'"
-            },
-            "Agent": {
-                beschrijving: "Jij bent de eerste agent ter plaatse. Je ziet de vrouw bij de HEMA staan, omringd door beveiligers. Jouw taak: (1) Observeer de situatie, (2) Spreek met de getuige (meneer Bakker) en het slachtoffer (Kim van HEMA), (3) Deel ALLE 7 W's via PORTO met het Operationeel Centrum!",
-                opdracht: "🎯 Verzamel de 7 W's: WIE (verdachte: blauwe jas/rood mutsje, slachtoffer: Kim HEMA, getuige: meneer Bakker), WAT (gooien spullen, zwaaien aansteker), WAAR (winkelcentrum De Passage, bij HEMA/bakkerij), WANNEER (±14:15), WAARMEE (thermosfles, broodtrommel, aansteker), WIJZE (gooien richting winkel), WAAROM (verwardheid, roept over zoon). Deel via PORTO!"
-            },
-            "Commandant": {
-                beschrijving: "Jij bent de Commandant op het bureau. Je stuurt de agent aan via de porto. Vraag expliciet naar alle 7 W's. Zorg dat het Operationeel Centrum alle informatie krijgt voor de mutatie.",
-                opdracht: "🎯 Vraag de Agent via PORTO: 'Geef mij de 7 W's door: Wie is de verdachte? Wie is slachtoffer? Wie is getuige? Wat is er gebeurd? Waar precies? Wanneer? Welke voorwerpen zijn gebruikt? Hoe ging ze te werk? Wat is het motief?'"
-            },
-            "CollegaDienstwapen": {
-                beschrijving: "Jij staat bij de uitgang van het winkelcentrum om te voorkomen dat de vrouw wegrent. Observeer en meld via PORTO wat je ziet: beschrijving van de vrouw, wat ze in haar handen heeft.",
-                opdracht: "🎯 Meld via PORTO: 'Collega bij uitgang. Verdachte is vrouw, blauwe regenjas, rood mutsje. Heeft aansteker in rechterhand. Zwaait ermee maar steekt niets aan.'"
-            },
-            "AangeslotenKoppel": {
-                beschrijving: "Jullie staan klaar bij de hoofdingang voor als de vrouw moet worden overmeesterd. Let op: ze is verward, geen agressieve crimineel. Gebruik geen geweld tenzij noodzakelijk. Meld via PORTO jullie positie.",
-                opdracht: "🎯 Meld via PORTO: 'Aangesloten koppel gereed bij hoofdingang De Passage. Let op: verwarde vrouw, geen geweld gebruiken tenzij strikt noodzakelijk.'"
-            },
-            "OC": {
-                beschrijving: "Jij bent het Operationeel Centrum. JOUW HOOFDTAAK: luister naar ALLE porto-communicatie en noteer de 7 gouden W's. De agenten moeten jou alle informatie doorgeven. Jij maakt de uiteindelijke mutatie op!",
-                opdracht: "🎯 Luister actief naar de porto. Noteer: WIE (verdachte + signalement, slachtoffer, getuige), WAT (feitelijke gebeurtenis), WAAR (exacte locatie), WANNEER (tijdstip), WAARMEE (voorwerpen), WIJZE (handelwijze), WAAROM (motief/aanleiding). Vraag actief om missende W's via de chat!"
-            }
-        }
-    },
-    
-    "HANGJONGEREN": {
-        id: "HANGJONGEREN",
-        titel: "Overlast Hangjongeren bij Winkelcentrum",
-        context: "Al weken is er overlast van een groep jongeren bij winkelcentrum 'De Kreek'. Vandaag escaleert het: de jongeren blokkeren de ingang, roken, draaien harde muziek uit een JBL-speaker en bespugen voorbijgangers. Een oudere man is ondergespuugd en struikelde over een skateboard. De groepsleider heeft een boksbeugel laten zien.",
-        rollen: {
-            "Verdachte": {
-                beschrijving: "Jij bent de groepsleider (naam: Dylan, 17 jaar, zwarte hoodie met 'Supreme' logo, spijkerbroek met gaten). Je hebt een boksbeugel in je zak die je af en toe laat zien om indruk te maken. Je hebt een JBL-speaker bij je waar harde rap-muziek uit komt. Jij spoorde je vrienden aan om de oude man te bespugen. Je skateboard ligt tegen de muur van de Etos.",
-                tips: "Je bent stoer en uitdagend. Roep naar omstanders: 'Wat kijk je dan, ouwe! Dit is ónze plek!' Laat af en toe de boksbeugel zien maar gebruik hem niet echt. Je vrienden (Kevin, 16, groene jas en Mo, 15, witte pet) staan naast je. Je hebt een blikje energy drink in je hand. Het is rond 16:30 uur."
-            },
-            "Slachtoffer": {
-                beschrijving: "Jij bent meneer Hendriks, 72 jaar. Je wilde boodschappen doen bij de Etos. De jongeren blokkeerden de ingang. Toen je erlangs wilde, werd je uitgescholden en bespuugd. Je struikelde over een skateboard en viel op je knie. Je broek is gescheurd en je hebt een pijnlijke knie. De groepsleider liet een boksbeugel zien. Je hebt aangifte gedaan.",
-                tips: "Vertel de agent: 'Ze stonden voor de Etos. De leider in zwarte Supreme-hoodie spuugde op mij. Toen ik weg wilde, struikelde ik over hun skateboard. Hij liet een boksbeugel zien! Ik ben 72, ik was echt bang. Het was rond half 5. Er waren drie jongens bij: eentje met groene jas, eentje met witte pet.'"
-            },
-            "Getuige": {
-                beschrijving: "Jij bent mevrouw Yilmaz, 38 jaar, eigenaresse van de bakkerij naast de Etos. Je zag alles vanuit je winkel. Je hebt al vaker overlast van deze groep gemeld. Je herkent de leider: Dylan, woont in de buurt. Zijn vrienden zijn Kevin (groene jas) en Mo (witte pet). Je zag Dylan spugen naar de oude man en de boksbeugel tonen. Je hebt 112 gebeld om 16:35 uur. Er staat ook een JBL-speaker op de grond.",
-                tips: "Vertel de agent: 'Die jongens komen hier vaker. De leider heet Dylan, woont hier in de wijk. De andere twee zijn Kevin en Mo. Dylan heeft een boksbeugel! Hij spuugde op die oude meneer. Ze hebben harde muziek aan via een JBL-box. Ik heb al drie keer geklaagd over ze. Het is elke dag raak rond 4 uur.'"
-            },
-            "Agent": {
-                beschrijving: "Jij bent agent ter plaatse. Spreek met het slachtoffer (meneer Hendriks) en de getuige (mevrouw Yilmaz). Let op: er is een boksbeugel gesignaleerd! Verzamel ALLE 7 W's en geef ze direct door via PORTO aan het Operationeel Centrum!",
-                opdracht: "🎯 Verzamel 7 W's: WIE (verdachten: Dylan/zwarte hoodie, Kevin/groene jas, Mo/witte pet; slachtoffer: meneer Hendriks,72; getuige: mevrouw Yilmaz), WAT (bespugen, boksbeugel tonen, struikelen), WAAR (ingang Etos, winkelcentrum De Kreek), WANNEER (±16:30), WAARMEE (boksbeugel, skateboard, JBL-speaker), WIJZE (blokkeren ingang, spugen, bedreigen), WAAROM (structurele overlast). Deel via PORTO!"
-            },
-            "Commandant": {
-                beschrijving: "Jij bent de Commandant. Er is sprake van een boksbeugel - let op veiligheid! Vraag de Agent expliciet naar alle 7 W's. Zorg dat het OC een complete melding krijgt. Vraag ook naar eerdere meldingen.",
-                opdracht: "🎯 Vraag Agent via PORTO: '7 W's doorgeven! Wie zijn de verdachten (namen/signalement)? Wat is er precies gebeurd met die boksbeugel? Waar bij de Etos? Hoe laat? Is er cameratoezicht? Zijn er eerdere meldingen van deze groep?'"
-            },
-            "CollegaDienstwapen": {
-                beschrijving: "Jij observeert vanaf de overkant. Je ziet de groep van drie jongens. Let op de boksbeugel! Meld signalementen via PORTO.",
-                opdracht: "🎯 Meld via PORTO: 'Zicht op 3 jongens bij Etos. Leider: zwarte Supreme-hoodie, toont boksbeugel in rechterhand. Tweede: groene jas. Derde: witte pet. Muziek via JBL-speaker. Overige bezoekers houden afstand.'"
-            },
-            "AangeslotenKoppel": {
-                beschrijving: "Jullie staan klaar bij de achteringang van het winkelcentrum. Let op: de verdachte heeft een boksbeugel! Wacht op groen licht van Commandant.",
-                opdracht: "🎯 Meld via PORTO: 'Aangesloten koppel gereed bij achteringang De Kreek. Boksbeugel gesignaleerd - wachten op instructie voor veilige benadering.'"
-            },
-            "OC": {
-                beschrijving: "Jij bent het Operationeel Centrum. Dit is jouw moment! Luister naar ALLE porto-communicatie en noteer de 7 gouden W's. Vraag actief om ontbrekende informatie. Jij maakt de mutatie!",
-                opdracht: "🎯 LUISTER en NOTEER: WIE (3 verdachten met signalement + slachtoffer 72jr + getuige bakkerij), WAT (bespugen, bedreiging boksbeugel, val), WAAR (Etos De Kreek), WANNEER (16:30-16:35), WAARMEE (boksbeugel, skateboard, JBL-speaker), WIJZE (blokkeren, spugen, boksbeugel tonen), WAAROM (structurele overlast). Vraag om missende info!"
-            }
-        }
-    },
-    
-    "GELUIDSOVERLAST": {
-        id: "GELUIDSOVERLAST",
-        titel: "Geluidsoverlast Portiekwoning",
-        context: "Al maanden is er ernstige geluidsoverlast in een portiekwoning aan de Kerkstraat 42. Bewoners klagen over harde muziek, geschreeuw en stampende geluiden op alle uren. Vanavond is het weer raak: buurvrouw Van Dam heeft om 23:00 uur de politie gebeld omdat de muziek zo hard staat dat haar servies trilt in de kast. De overlast komt van appartement 3B, bewoond door meneer Jansen.",
-        rollen: {
-            "Verdachte": {
-                beschrijving: "Jij bent meneer Jansen (34 jaar, appartement 3B, Kerkstraat 42). Je hebt vanavond vrienden over de vloer. Jullie drinken bier, luisteren harde techno-muziek via je geluidsinstallatie (2 grote boxen van het merk Bose) en stampen op de vloer mee met de beat. Het is nu 23:15 uur. Je vindt dat je niks verkeerds doet - 'het is vrijdagavond, dan mag het toch?' Je hebt al vaker klachten gehad maar trekt je er niets van aan.",
-                tips: "Je bent niet onder de indruk. Roep door de intercom als de politie belt: 'Het is weekend! Ik mag toch zeker wel muziek draaien? Ga weg!' Je Bose-boxen staan op maximaal volume. Er staan lege bierflesjes op tafel. Je woont hier 2 jaar en hebt al 8 eerdere meldingen gehad."
-            },
-            "Slachtoffer": {
-                beschrijving: "Jij bent mevrouw Van Dam (68 jaar, appartement 2B, direct onder Jansen). Je trilt letterlijk in je stoel van de bas. Het servies in je kast rinkelt. Je hebt om 23:00 uur de politie gebeld. Dit is al de 9e keer in 2 maanden dat je klaagt. Je durft niet zelf naar boven te gaan omdat Jansen vorige keer agressief reageerde en tegen je deur schopte. Je hebt een logboek bijgehouden van alle keren dat er overlast was.",
-                tips: "Vertel de agent: 'Het begon vanavond om 22:00 uur. Het is techno-muziek, keihard. Mijn servies trilt! Dit is de 9e keer! Ik heb een logboek. Hij heeft 2 grote Bose-boxen. Vorige maand schopte hij tegen mijn deur toen ik vroeg of het zachter kon. Ik ben bang voor hem. Ik woon hier al 40 jaar, dit is geen leven zo.'"
-            },
-            "Getuige": {
-                beschrijving: "Jij bent meneer De Boer (45 jaar, appartement 3A, naast Jansen). Je hoort alles door de dunne muren. Vanavond begon de overlast rond 21:30 uur. Je hoorde stemmen, gelach, en vanaf 22:00 uur harde techno. Je hebt Jansen horen schreeuwen door de intercom toen mevrouw Van Dam iets zei. Je hebt ook gezien dat hij 2 grote Bose-boxen heeft. Er komen vaker vrienden over de vloer, soms tot 3 uur 's nachts.",
-                tips: "Vertel de agent: 'Het begon rond half 10 met stemmen en gelach. Vanaf 10 uur die harde techno. Ik hoor alles, de muren zijn hier dun. Hij heeft 2 grote Bose-speakers. Hij schreeuwde net door de intercom tegen mevrouw Van Dam. Dit gebeurt zeker 2-3 keer per week. Soms tot diep in de nacht. Ik heb er ook last van maar durf niks te zeggen - hij kan agressief zijn.'"
-            },
-            "Agent": {
-                beschrijving: "Jij bent agent. Je staat in de portiek van Kerkstraat 42. Spreek met mevrouw Van Dam (2B) en meneer De Boer (3A). Let op: er is sprake van eerdere agressie (schoppen tegen deur)! Verzamel ALLE 7 W's en geef ze via PORTO door aan het Operationeel Centrum!",
-                opdracht: "🎯 Verzamel 7 W's: WIE (verdachte: Jansen, 3B; slachtoffer: mevrouw Van Dam, 68jr, 2B; getuige: meneer De Boer, 3A), WAT (geluidsoverlast, techno-muziek, stampen), WAAR (Kerkstraat 42, portiekwoning, appartement 3B), WANNEER (vanavond 21:30 start, 22:00 muziek, 23:00 melding), WAARMEE (2 Bose-boxen, geluidsinstallatie), WIJZE (maximaal volume, stampen, schreeuwen door intercom), WAAROM (vrijdagavond, vrienden over de vloer, trekt zich niets aan van eerdere klachten). Deel via PORTO!"
-            },
-            "Commandant": {
-                beschrijving: "Jij bent Commandant. Dit is de 9e melding van dit adres. Vraag de Agent naar alle 7 W's en ook naar de voorgeschiedenis. Is er sprake van stelselmatige overlast? Kan er een proces-verbaal opgemaakt worden?",
-                opdracht: "🎯 Vraag Agent via PORTO: '7 W's doorgeven! Wie zijn betrokkenen en welke appartementen? Wat is de exacte overlast? Sinds hoe laat? Welke apparatuur? Is er sprake van eerdere meldingen/agressie? Heeft mevrouw Van Dam bewijsmateriaal (logboek)?'"
-            },
-            "CollegaDienstwapen": {
-                beschrijving: "Jij staat bij de toegangsdeur van de portiek. Zorg dat niemand het pand verlaat zonder controle. Meld via PORTO wat je hoort en ziet.",
-                opdracht: "🎯 Meld via PORTO: 'Collega bij toegangsdeur Kerkstraat 42. Bas-muziek duidelijk hoorbaar tot op straat. Lichten aan in appartement 3B (rechtsboven). Meerdere stemmen hoorbaar.'"
-            },
-            "AangeslotenKoppel": {
-                beschrijving: "Jullie staan in het trappenhuis, klaar om indien nodig naar 3B te gaan. Let op: de verdachte kan agressief reageren op interventie!",
-                opdracht: "🎯 Meld via PORTO: 'Aangesloten koppel in trappenhuis Kerkstraat 42. Gereed voor benadering 3e etage. Horen harde techno-muziek en meerdere personen.'"
-            },
-            "OC": {
-                beschrijving: "Jij bent het Operationeel Centrum. Luister naar ALLE porto-informatie en noteer de 7 gouden W's. Deze zaak heeft een voorgeschiedenis - zorg dat die ook in de mutatie komt! Jij maakt de mutatie op!",
-                opdracht: "🎯 LUISTER en NOTEER: WIE (verdachte Jansen 3B, slachtoffer Van Dam 68jr 2B, getuige De Boer 3A), WAT (geluidsoverlast, techno, agressie), WAAR (Kerkstraat 42, 3B), WANNEER (21:30-23:00+), WAARMEE (2 Bose-boxen), WIJZE (max volume, stampen, schreeuwen), WAAROM (vrijdagavond, eerdere klachten genegeerd). Noteer ook: 9e melding, logboek aanwezig, eerdere agressie!"
-            }
-        }
-    },
-    
-    "WILDPLASSER": {
-        id: "WILDPLASSER",
-        titel: "Wildplasser bij Station",
-        context: "Een man is betrapt op wildplassen tegen de muur van het stationsgebouw. Hij is aangehouden door een oplettende agent in burger. De man is agressief en weigert zijn identiteitsbewijs te tonen. Er zijn meerdere getuigen die het zagen gebeuren.",
-        rollen: {
-            "Verdachte": {
-                beschrijving: "Jij bent meneer Pieters (42 jaar, donkerblauwe jas, spijkerbroek). Je stond te wildplassen tegen de zijmuur van het station (bij de fietsenstalling). Je had te veel bier gedronken in de stad en kon het niet meer ophouden. Je bent boos dat je wordt aangehouden - 'het is maar plassen, stel je niet aan!' Je weigert je ID te tonen en slaat een grote mond op tegen de agent. Het is 01:15 uur. Er staat een plas tegen de muur.",
-                tips: "Je bent agressief en werkt niet mee. Roep: 'Ik heb niks gedaan! Het is maar plassen! Iedereen doet het!' Je hebt een bierlucht om je heen. Je hebt geen ID bij je (zeg je). Je jas is van het merk North Face, donkerblauw. Je komt uit café 'De Hoek' om de hoek."
-            },
-            "Slachtoffer": {
-                beschrijving: "Jij bent niet van toepassing in dit scenario. De gemeente is benadeelde partij (vervuiling openbare ruimte)."
-            },
-            "Getuige": {
-                beschrijving: "Jij bent mevrouw De Wit (29 jaar). Je stond bij de bushalte naast het station en zag de man plassen tegen de muur van de fietsenstalling. Het was duidelijk zichtbaar vanaf de openbare weg. Je zag dat hij wankelde en bierlucht om zich heen had. Je hebt het gemeld bij de agent in burger die bij het station stond. Het was rond 01:10 uur. De man droeg een donkerblauwe jas en leek dronken.",
-                tips: "Vertel de agent: 'Ik zag hem plassen tegen de muur van de fietsenstalling. Het was rond tien over 1. Hij wankelde, leek dronken. Donkerblauwe jas, spijkerbroek. Hij kwam uit de richting van café De Hoek. Het was heel duidelijk zichtbaar, vies gewoon.'"
-            },
-            "Agent": {
-                beschrijving: "Jij bent de agent in burger die de wildplasser heeft aangehouden. Je stond bij het station voor surveillance. Je zag de man plassen tegen de muur van de fietsenstalling om ±01:10 uur. Je hebt hem staande gehouden. Hij is agressief en weigert ID. Spreek met de getuige (mevrouw De Wit). Verzamel ALLE 7 W's via PORTO voor het Operationeel Centrum!",
-                opdracht: "🎯 Verzamel 7 W's: WIE (verdachte: man 42jr, donkerblauwe North Face jas, spijkerbroek, uit café De Hoek; getuige: mevrouw De Wit, 29jr; benadeelde: gemeente), WAT (wildplassen openbare ruimte, agressief gedrag, weigering ID), WAAR (zijmuur station, fietsenstalling, vanaf openbare weg zichtbaar), WANNEER (±01:10-01:15), WAARMEE (n.v.t. - fysieke handeling), WIJZE (plassen tegen muur, zichtbaar vanaf openbare weg), WAAROM (dronkenschap, cafébezoek). Deel via PORTO!"
-            },
-            "Commandant": {
-                beschrijving: "Jij bent Commandant. Een wildplasser lijkt klein, maar weigering ID en agressie maken het een serieuzere zaak. Vraag de Agent naar alle 7 W's. Is er cameratoezicht bij het station? Kan de ID achterhaald worden?",
-                opdracht: "🎯 Vraag Agent via PORTO: '7 W's doorgeven! Wie is de verdachte (signalement)? Waar precies (camerabeelden)? Hoe laat? Wat is de houding van verdachte? Is er overlast of alleen vervuiling? Kan ID via andere weg achterhaald worden?'"
-            },
-            "CollegaDienstwapen": {
-                beschrijving: "Jij staat bij de hoofdingang van het station. Zorg dat de verdachte niet wegrent. Meld via PORTO wat je ziet.",
-                opdracht: "🎯 Meld via PORTO: 'Collega bij hoofdingang station. Verdachte is man, donkerblauwe jas, spijkerbroek. Maakt agressieve gebaren naar collega in burger. Staat bij fietsenstalling.'"
-            },
-            "AangeslotenKoppel": {
-                beschrijving: "Jullie staan stand-by bij de bushalte. De verdachte werkt niet mee - mogelijk moeten jullie assisteren bij aanhouding en transport naar het bureau.",
-                opdracht: "🎯 Meld via PORTO: 'Aangesloten koppel stand-by bij bushalte station. Gereed voor assistentie bij aanhouding. Verdachte lijkt onder invloed en agressief.'"
-            },
-            "OC": {
-                beschrijving: "Jij bent het Operationeel Centrum. Noteer alle 7 gouden W's uit de porto-communicatie. Let op: ook bij een 'klein' feit als wildplassen moeten alle W's compleet zijn voor de mutatie!",
-                opdracht: "🎯 LUISTER en NOTEER: WIE (verdachte 42jr, North Face jas/blauw, café De Hoek; getuige De Wit 29jr), WAT (wildplassen + agressie + weigeren ID), WAAR (zijmuur station, fietsenstalling), WANNEER (01:10-01:15), WAARMEE (fysieke handeling), WIJZE (plassen tegen muur, zichtbaar openbare weg), WAAROM (dronkenschap na cafébezoek). Vraag om ID-afhandeling!"
-            }
-        }
-    }
-};
-
-// --- SCENARIO TOEWIJZING PER NATO-KLAS ---
-function getScenarioForClass(className) {
-    const scenarioKeys = Object.keys(SCENARIOS);
-    let hash = 0;
-    for (let i = 0; i < className.length; i++) {
-        hash = (hash * 31 + className.charCodeAt(i)) % scenarioKeys.length;
-    }
-    return SCENARIOS[scenarioKeys[Math.abs(hash)]];
-}
-
-// --- STATE ---
-let peer = null, localStream = null, isSpeaking = false, isConnected = false;
-let myClass = '', myRole = '', myType = '';
-let connections = [], allCalls = [];
-let myUsername = '', myId = '';
-let microfoonToegestaan = false, currentScenario = null;
-let window._audioElements = new Map();
-
-const POLICE_ROLES = ['Agent', 'Commandant', 'CollegaDienstwapen', 'AangeslotenKoppel'];
-const OC_ROLE = 'OC';
-
-// --- DOM ELEMENTEN ---
-const $ = (id) => document.getElementById(id);
-const loginScreen = $('loginScreen'), wtScreen = $('wtScreen');
-const usernameInput = $('usernameInput'), classSelect = $('classSelect'), roleSelect = $('roleSelect');
-const connectBtn = $('connectBtn'), loginError = $('loginError');
-const displayName = $('displayName'), wtPeerId = $('wtPeerId'), roleDisplay = $('roleDisplay');
-const wtStatusLed = $('wtStatusLed'), wtStatusText = $('wtStatusText');
-const wtUserCount = $('wtUserCount'), wtUserList = $('wtUserList');
-const pttContainer = $('pttContainer'), pttButton = $('pttButton');
-const wtChatMessages = $('wtChatMessages'), wtChatInput = $('wtChatInput'), wtChatSendBtn = $('wtChatSendBtn');
-const microStatus = $('microStatus');
-const scenarioTitle = $('scenarioTitle'), scenarioText = $('scenarioText');
-const opdrachtBox = $('opdrachtBox'), opdrachtText = $('opdrachtText');
-
-// Mutatie elementen
-const mutWie = $('mutWie'), mutWat = $('mutWat'), mutWaar = $('mutWaar');
-const mutWanneer = $('mutWanneer'), mutWaarmee = $('mutWaarmee'), mutWijze = $('mutWijze'), mutWaarom = $('mutWaarom');
-const submitMutatieBtn = $('submitMutatieBtn'), saveIndicator = $('saveIndicator');
-const livefeedContainer = $('livefeedContainer');
-const resetDbBtn = $('resetDbBtn');
-const resetOverlay = $('resetOverlay'), resetDialog = $('resetDialog');
-const resetDialogKlas = $('resetDialogKlas'), cancelResetBtn = $('cancelResetBtn'), confirmResetBtn = $('confirmResetBtn');
-
-// --- HELPER FUNCTIES ---
-function generateUniqueId() { return `Q1-${Math.random().toString(36).substr(2, 9)}`; }
-
-function setStatus(state, text) {
-    const states = { online: 'online', offline: 'offline', connecting: 'connecting', speaking: 'speaking' };
-    wtStatusLed.className = 'status-led ' + (states[state] || 'offline');
-    wtStatusText.textContent = text || state;
-}
-
-function addChat(sender, text, isSystem = false) {
-    const div = document.createElement('div');
-    div.style.marginBottom = '4px'; div.style.fontSize = '0.85rem';
-    div.innerHTML = `<strong style="color:#f0c040;">${sender}</strong> <span>${text}</span>`;
-    if (isSystem) div.style.color = '#8899aa';
-    wtChatMessages.appendChild(div);
-    wtChatMessages.scrollTop = wtChatMessages.scrollHeight;
-}
-
-function updateUserList() {
-    wtUserCount.textContent = `👥 ${Math.max(1, connections.length)} in ${myClass}`;
-    let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
-    connections.forEach(c => { if (c.peer !== myId) html += `<span class="chip">📞 ${c.peer}</span>`; });
-    wtUserList.innerHTML = html;
-}
-
-function updateRoleDisplay() {
-    const names = {
-        'Agent':'Agent','Commandant':'Commandant','CollegaDienstwapen':'Collega (Dienstwapen)',
-        'AangeslotenKoppel':'Aangesloten Koppel','Verdachte':'Verdachte','Slachtoffer':'Slachtoffer',
-        'Getuige':'Getuige/Aangever','OC':'Operationeel Centrum'
+    const firebaseConfig = {
+        apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
+        authDomain: "speeltuin-recherche.firebaseapp.com",
+        databaseURL: "https://speeltuin-recherche-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "speeltuin-recherche",
+        storageBucket: "speeltuin-recherche.firebasestorage.app",
+        messagingSenderId: "499912834123",
+        appId: "1:499912834123:web:3c84cbf4d5eb13131961ce"
     };
-    roleDisplay.textContent = names[myRole] || myRole;
-    if (POLICE_ROLES.includes(myRole)) roleDisplay.className = 'role-badge role-police';
-    else if (myRole === OC_ROLE) roleDisplay.className = 'role-badge role-oc';
-    else if (myRole === 'Verdachte') roleDisplay.className = 'role-badge role-criminal';
-    else roleDisplay.className = 'role-badge role-hostage';
-}
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-// --- FIREBASE FUNCTIES ---
-function getMutatieRef() { return window.firebaseRef(window.firebaseDB, `q1_mutaties/${myClass}`); }
-function getFeedbackRef(mutatieId) { return window.firebaseRef(window.firebaseDB, `q1_mutaties/${myClass}/${mutatieId}/feedback`); }
-
-function submitMutatie() {
-    const mutatie = {
-        wie: mutWie.value.trim(), wat: mutWat.value.trim(), waar: mutWaar.value.trim(),
-        wanneer: mutWanneer.value || 'Niet gespecificeerd', waarmee: mutWaarmee.value.trim(),
-        wijze: mutWijze.value.trim(), waarom: mutWaarom.value.trim(),
-        auteur: myUsername, rol: myRole,
-        timestamp: window.firebaseServerTimestamp ? window.firebaseServerTimestamp() : Date.now(),
-        klas: myClass, scenario: currentScenario ? currentScenario.titel : 'Onbekend'
+    // ----- Scenario's (aangepaste rolnaam) -----
+    const SCENARIOS = {
+        "VERWARD": {
+            id: "VERWARD", titel: "Verwarde Vrouw in Winkelcentrum",
+            context: "Melding van een verwarde vrouw in winkelcentrum 'De Passage'...",
+            rollen: {
+                "Verdachte": { beschrijving: "Jij bent de verwarde vrouw (mevr. De Vries, 62). Je gooit met spullen en hebt een aansteker.", tips: "Roep: 'Blijf van me af!' Je hebt een blauwe regenjas en rood mutsje." },
+                "Slachtoffer": { beschrijving: "Jij bent Kim (24), winkelier bij HEMA. De thermosfles vloog jouw kant op.", tips: "Vertel: 'Ze gooide een thermosfles naar mijn winkel, hij is kapot.'" },
+                "Getuige": { beschrijving: "Jij bent meneer Bakker (55). Je stond bij de bakker en hebt alles gezien.", tips: "Vertel: 'Ze begon om 14:15 te schreeuwen en gooide spullen.'" },
+                "Agent": { beschrijving: "Eerste agent ter plaatse. Verzamel alle 7 W's en geef ze via PORTO aan het OC.", opdracht: "🎯 Verzamel WIE/WAT/WAAR/WANNEER/WAARMEE/WIJZE/WAAROM. Deel via PORTO!" },
+                "Commandant": { beschrijving: "Commandant op het bureau. Vraag de agent naar de 7 W's.", opdracht: "🎯 Vraag via PORTO: 'Geef mij de 7 W's door.'" },
+                "AangeslotenCollega": { beschrijving: "Je staat bij de uitgang van het winkelcentrum. Meld signalement van de vrouw.", opdracht: "🎯 Meld: blauwe jas, rood mutsje, aansteker in rechterhand." },
+                "AangeslotenKoppel": { beschrijving: "Je staat klaar bij de hoofdingang. Geen geweld gebruiken, het is een verwarde vrouw.", opdracht: "🎯 Meld positie en wacht op instructies." },
+                "OC": { beschrijving: "Operationeel Centrum. Luister naar ALLE porto-communicatie en noteer de 7 W's.", opdracht: "🎯 Noteer elke W en vraag om ontbrekende info. Jij maakt de mutatie!" }
+            }
+        },
+        "HANGJONGEREN": {
+            id: "HANGJONGEREN", titel: "Overlast Hangjongeren bij Winkelcentrum",
+            context: "Al weken overlast van een groep jongeren bij winkelcentrum 'De Kreek'...",
+            rollen: {
+                "Verdachte": { beschrijving: "Dylan (17), zwarte Supreme-hoodie, boksbeugel, JBL-speaker.", tips: "Roep: 'Dit is ónze plek!' Laat boksbeugel zien." },
+                "Slachtoffer": { beschrijving: "Meneer Hendriks (72). Bespuugd en gestruikeld over skateboard.", tips: "Vertel: 'De leider met zwarte hoodie spuugde en liet een boksbeugel zien.'" },
+                "Getuige": { beschrijving: "Mevrouw Yilmaz (38), bakkerij-eigenaresse. Herkent de jongens.", tips: "Vertel: 'Dylan, Kevin en Mo. Boksbeugel! Al vaker overlast.'" },
+                "Agent": { beschrijving: "Agent ter plaatse. Spreek slachtoffer en getuige.", opdracht: "🎯 Verzamel 7 W's: namen, signalement, boksbeugel, locatie, tijdstip, etc." },
+                "Commandant": { beschrijving: "Vraag alle 7 W's op. Let op boksbeugel.", opdracht: "🎯 '7 W's doorgeven, inclusief eerdere meldingen!'" },
+                "AangeslotenCollega": { beschrijving: "Je observeert vanaf de overkant. Meld wat je ziet.", opdracht: "🎯 Meld: 3 jongens, zwarte hoodie toont boksbeugel." },
+                "AangeslotenKoppel": { beschrijving: "Je staat klaar bij de achteringang.", opdracht: "🎯 Meld gereed, wacht op instructie." },
+                "OC": { beschrijving: "Operationeel Centrum. Noteer 7 W's.", opdracht: "🎯 LUISTER: noteer WIE (3 verdachten + slachtoffer + getuige), WAT, WAAR, etc." }
+            }
+        },
+        "GELUIDSOVERLAST": {
+            id: "GELUIDSOVERLAST", titel: "Geluidsoverlast Portiekwoning",
+            context: "Al maanden ernstige geluidsoverlast in Kerkstraat 42...",
+            rollen: {
+                "Verdachte": { beschrijving: "Meneer Jansen (34), appartement 3B, Bose-boxen, techno.", tips: "Roep: 'Het is weekend!' Je hebt al 8 eerdere meldingen." },
+                "Slachtoffer": { beschrijving: "Mevrouw Van Dam (68), 2B. Servies trilt, logboek bijgehouden.", tips: "Vertel: '9e keer! Om 22:00 begon de techno.'" },
+                "Getuige": { beschrijving: "Meneer De Boer (45), 3A. Hoort alles door dunne muren.", tips: "Vertel: 'Om half 10 stemmen, vanaf 10 uur harde techno.'" },
+                "Agent": { beschrijving: "Agent in portiek. Spreek met Van Dam en De Boer.", opdracht: "🎯 Verzamel 7 W's: betrokkenen, overlast, tijden, apparatuur, eerdere meldingen." },
+                "Commandant": { beschrijving: "Vraag 7 W's en voorgeschiedenis.", opdracht: "🎯 '7 W's + logboek? Eerdere agressie?'" },
+                "AangeslotenCollega": { beschrijving: "Je staat bij de toegangsdeur, muziek is hoorbaar tot op straat.", opdracht: "🎯 Meld: 'Bas hoorbaar tot op straat, lichten 3B aan.'" },
+                "AangeslotenKoppel": { beschrijving: "Je staat in het trappenhuis, gereed voor benadering.", opdracht: "🎯 Meld gereed, horen meerdere personen." },
+                "OC": { beschrijving: "Operationeel Centrum. Noteer 7 W's en voorgeschiedenis.", opdracht: "🎯 Noteer: 9e melding, logboek, eerdere agressie. Jij maakt de mutatie." }
+            }
+        },
+        "WILDPLASSER": {
+            id: "WILDPLASSER", titel: "Wildplasser bij Station",
+            context: "Een man is betrapt op wildplassen tegen de muur van het station...",
+            rollen: {
+                "Verdachte": { beschrijving: "Meneer Pieters (42), donkerblauwe North Face jas, dronken.", tips: "Roep: 'Het is maar plassen!' Weigert ID." },
+                "Slachtoffer": { beschrijving: "N.v.t. – de gemeente is benadeelde partij." },
+                "Getuige": { beschrijving: "Mevrouw De Wit (29). Zag de man plassen bij de fietsenstalling.", tips: "Vertel: 'Rond 01:10, hij wankelde, donkerblauwe jas.'" },
+                "Agent": { beschrijving: "Agent in burger die aanhield. Verzamel 7 W's.", opdracht: "🎯 Verzamel WIE (signalement), WAT (wildplassen+agressie), WAAR, WANNEER, etc." },
+                "Commandant": { beschrijving: "Vraag 7 W's, cameratoezicht?", opdracht: "🎯 '7 W's + is er camerabeeld? Achterhaal ID.'" },
+                "AangeslotenCollega": { beschrijving: "Je staat bij de hoofdingang van het station.", opdracht: "🎯 Meld: 'Verdachte maakt agressieve gebaren.'" },
+                "AangeslotenKoppel": { beschrijving: "Je staat stand-by bij de bushalte voor assistentie bij aanhouding.", opdracht: "🎯 Meld gereed, verdachte onder invloed." },
+                "OC": { beschrijving: "Operationeel Centrum. Noteer 7 W's.", opdracht: "🎯 LUISTER: WIE, WAT, WAAR, WANNEER, WAARMEE (fysiek), WIJZE, WAAROM (dronken)." }
+            }
+        }
     };
-    
-    if (!mutatie.wie && !mutatie.wat && !mutatie.waar) {
-        saveIndicator.textContent = '⚠️ Vul minimaal Wie, Wat en Waar in.';
+
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+        return hash;
+    }
+    function getScenarioForClass(className) {
+        const keys = Object.keys(SCENARIOS);
+        return SCENARIOS[keys[hashString(className) % keys.length]];
+    }
+    function assignRole(className, username) {
+        const scenario = getScenarioForClass(className);
+        const roles = Object.keys(scenario.rollen);
+        return roles[hashString(className + username) % roles.length];
+    }
+
+    // ----- State (POLICE_ROLES aangepast) -----
+    let peer = null, localStream = null, isSpeaking = false, isConnected = false;
+    let myClass = '', myRole = '', myType = '';
+    let connections = [], allCalls = [];
+    let myUsername = '', myId = '';
+    let microfoonToegestaan = false, currentScenario = null;
+    window._audioElements = new Map();
+
+    const POLICE_ROLES = ['Agent', 'Commandant', 'AangeslotenCollega', 'AangeslotenKoppel'];
+    const OC_ROLE = 'OC';
+
+    // ----- DOM elementen -----
+    const $ = (id) => document.getElementById(id);
+    const loginScreen = $('loginScreen'), wtScreen = $('wtScreen');
+    const usernameInput = $('usernameInput'), classSelect = $('classSelect');
+    const connectBtn = $('connectBtn'), loginError = $('loginError');
+    const displayName = $('displayName'), wtPeerId = $('wtPeerId'), roleDisplay = $('roleDisplay');
+    const wtStatusLed = $('wtStatusLed'), wtStatusText = $('wtStatusText');
+    const wtUserCount = $('wtUserCount'), wtUserList = $('wtUserList');
+    const pttContainer = $('pttContainer'), pttButton = $('pttButton');
+    const wtChatMessages = $('wtChatMessages'), wtChatInput = $('wtChatInput'), wtChatSendBtn = $('wtChatSendBtn');
+    const microStatus = $('microStatus');
+    const scenarioTitle = $('scenarioTitle'), scenarioText = $('scenarioText');
+    const opdrachtBox = $('opdrachtBox'), opdrachtText = $('opdrachtText');
+    const mutWie = $('mutWie'), mutWat = $('mutWat'), mutWaar = $('mutWaar');
+    const mutWanneer = $('mutWanneer'), mutWaarmee = $('mutWaarmee'), mutWijze = $('mutWijze'), mutWaarom = $('mutWaarom');
+    const submitMutatieBtn = $('submitMutatieBtn'), saveIndicator = $('saveIndicator');
+    const livefeedContainer = $('livefeedContainer');
+    const resetDbBtn = $('resetDbBtn'), resetOverlay = $('resetOverlay'), resetDialog = $('resetDialog');
+    const resetDialogKlas = $('resetDialogKlas'), cancelResetBtn = $('cancelResetBtn'), confirmResetBtn = $('confirmResetBtn');
+
+    function generateUniqueId() { return `Q1-${Math.random().toString(36).substr(2, 9)}`; }
+    function setStatus(state, text) {
+        const states = { online: 'online', offline: 'offline', connecting: 'connecting', speaking: 'speaking' };
+        wtStatusLed.className = 'status-led ' + (states[state] || 'offline');
+        wtStatusText.textContent = text || state;
+    }
+    function addChat(sender, text, isSystem = false) {
+        const div = document.createElement('div');
+        div.style.marginBottom = '4px'; div.style.fontSize = '0.85rem';
+        div.innerHTML = `<strong style="color:#f0c040;">${sender}</strong> <span>${text}</span>`;
+        if (isSystem) div.style.color = '#8899aa';
+        wtChatMessages.appendChild(div);
+        wtChatMessages.scrollTop = wtChatMessages.scrollHeight;
+    }
+    function updateUserList() {
+        wtUserCount.textContent = `👥 ${Math.max(1, connections.length)} in ${myClass}`;
+        let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
+        connections.forEach(c => { if (c.peer !== myId) html += `<span class="chip">📞 ${c.peer}</span>`; });
+        wtUserList.innerHTML = html;
+    }
+    function updateRoleDisplay() {
+        const names = {
+            'Agent':'Agent','Commandant':'Commandant',
+            'AangeslotenCollega':'Aangesloten collega',
+            'AangeslotenKoppel':'Aangesloten koppel',
+            'Verdachte':'Verdachte','Slachtoffer':'Slachtoffer',
+            'Getuige':'Getuige/Aangever','OC':'Operationeel Centrum'
+        };
+        roleDisplay.textContent = names[myRole] || myRole;
+        if (POLICE_ROLES.includes(myRole)) roleDisplay.className = 'role-badge role-police';
+        else if (myRole === OC_ROLE) roleDisplay.className = 'role-badge role-oc';
+        else if (myRole === 'Verdachte') roleDisplay.className = 'role-badge role-criminal';
+        else roleDisplay.className = 'role-badge role-hostage';
+    }
+
+    // ----- Firebase hulp -----
+    function getMutatieRef() { return ref(database, `q1_mutaties/${myClass}`); }
+    function getFeedbackRef(mutId) { return ref(database, `q1_mutaties/${myClass}/${mutId}/feedback`); }
+    function submitMutatie() {
+        const mutatie = {
+            wie: mutWie.value.trim(), wat: mutWat.value.trim(), waar: mutWaar.value.trim(),
+            wanneer: mutWanneer.value || 'Niet gespecificeerd', waarmee: mutWaarmee.value.trim(),
+            wijze: mutWijze.value.trim(), waarom: mutWaarom.value.trim(),
+            auteur: myUsername, rol: myRole,
+            timestamp: serverTimestamp(),
+            klas: myClass, scenario: currentScenario ? currentScenario.titel : 'Onbekend'
+        };
+        if (!mutatie.wie && !mutatie.wat && !mutatie.waar) {
+            saveIndicator.textContent = '⚠️ Vul minimaal Wie, Wat en Waar in.';
+            saveIndicator.className = 'save-indicator'; return;
+        }
+        saveIndicator.textContent = '⏳ Opslaan...';
         saveIndicator.className = 'save-indicator';
-        return;
-    }
-    
-    saveIndicator.textContent = '⏳ Opslaan...';
-    saveIndicator.className = 'save-indicator';
-    
-    const newRef = window.firebasePush(getMutatieRef());
-    window.firebaseSet(newRef, mutatie)
-        .then(() => {
+        const newRef = push(getMutatieRef());
+        set(newRef, mutatie).then(() => {
             saveIndicator.textContent = '✅ Mutatie opgeslagen!';
             saveIndicator.className = 'save-indicator saved';
-            mutWie.value = ''; mutWat.value = ''; mutWaar.value = '';
-            mutWanneer.value = ''; mutWaarmee.value = ''; mutWijze.value = ''; mutWaarom.value = '';
+            mutWie.value = mutWat.value = mutWaar.value = mutWanneer.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
             setTimeout(() => { saveIndicator.textContent = ''; }, 3000);
-        })
-        .catch(err => {
+        }).catch(err => {
             saveIndicator.textContent = '❌ Fout: ' + err.message;
             saveIndicator.className = 'save-indicator';
         });
-}
-
-function submitFeedback(mutatieId, feedbackText, auteur) {
-    if (!feedbackText.trim()) return;
-    const feedbackRef = window.firebasePush(getFeedbackRef(mutatieId));
-    window.firebaseSet(feedbackRef, {
-        text: feedbackText.trim(), auteur: auteur,
-        timestamp: window.firebaseServerTimestamp ? window.firebaseServerTimestamp() : Date.now()
-    });
-}
-
-function resetDatabase() {
-    window.firebaseRemove(getMutatieRef())
-        .then(() => {
-            livefeedContainer.innerHTML = '<div class="empty-state">✅ Database gereset. Wachten op nieuwe mutaties...</div>';
-        })
-        .catch(err => console.error('Reset fout:', err));
-}
-
-function loadLivefeed() {
-    window.firebaseOnValue(getMutatieRef(), (snapshot) => {
-        renderLivefeed(snapshot.val());
-    });
-}
-
-function renderLivefeed(data) {
-    if (!data) {
-        livefeedContainer.innerHTML = '<div class="empty-state">📝 Nog geen mutaties ingeleverd. Ga naar het Mutatie-tabblad.</div>';
-        return;
     }
-    
-    const entries = Object.entries(data).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
-    let html = '';
-    
-    entries.forEach(([id, mutatie]) => {
-        const tijd = mutatie.timestamp ? new Date(mutatie.timestamp).toLocaleString('nl-NL') : 'Onbekend';
-        html += `
-        <div class="mutatie-card">
-            <div class="mutatie-header">
-                <span class="auteur">📝 ${mutatie.auteur || '?'} (${mutatie.rol || '?'})</span>
-                <span class="tijd">${tijd}</span>
-            </div>
-            <div class="mutatie-field"><strong><span class="w-hint">W1</span> Wie:</strong> ${mutatie.wie || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W2</span> Wat:</strong> ${mutatie.wat || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W3</span> Waar:</strong> ${mutatie.waar || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W4</span> Wanneer:</strong> ${mutatie.wanneer || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W5</span> Waarmee:</strong> ${mutatie.waarmee || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W6</span> Wijze:</strong> ${mutatie.wijze || '-'}</div>
-            <div class="mutatie-field"><strong><span class="w-hint">W7</span> Waarom:</strong> ${mutatie.waarom || '-'}</div>
-            
-            <div class="feedback-section">
-                <strong style="color:#6c5ce7; font-size:0.8rem;">💬 Peer Feedback:</strong>
-                <div class="feedback-list" id="feedback-${id}">
-                    ${renderFeedbackItems(mutatie.feedback)}
-                </div>
-                <div class="feedback-form">
-                    <input type="text" id="fb-input-${id}" placeholder="Mist er een W? Geef feedback..." />
-                    <button class="btn btn-feedback" onclick="submitFeedbackFromUI('${id}')" style="width:auto;">📨</button>
-                </div>
-            </div>
-        </div>`;
-    });
-    
-    livefeedContainer.innerHTML = html || '<div class="empty-state">Geen mutaties gevonden.</div>';
-}
-
-function renderFeedbackItems(feedback) {
-    if (!feedback) return '<div style="color:#667788; font-size:0.75rem;">Nog geen feedback. Wees de eerste!</div>';
-    return Object.values(feedback)
-        .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
-        .map(fb => `<div class="feedback-item"><span class="fb-auteur">${fb.auteur || 'Anoniem'}:</span> ${fb.text}</div>`).join('');
-}
-
-window.submitFeedbackFromUI = function(mutatieId) {
-    const input = document.getElementById(`fb-input-${mutatieId}`);
-    if (!input || !input.value.trim()) return;
-    submitFeedback(mutatieId, input.value, myUsername);
-    input.value = '';
-};
-
-// --- SCENARIO LADEN ---
-function loadScenarioForUser() {
-    currentScenario = getScenarioForClass(myClass);
-    if (!currentScenario) return;
-    
-    scenarioTitle.textContent = '🚨 ' + currentScenario.titel;
-    scenarioText.textContent = currentScenario.context;
-    
-    const rolData = currentScenario.rollen[myRole];
-    if (rolData) {
-        opdrachtBox.style.display = 'block';
-        opdrachtText.innerHTML = rolData.opdracht 
-            ? `<strong>${rolData.beschrijving}</strong><br><br>${rolData.opdracht}`
-            : `<strong>${rolData.beschrijving}</strong><br><br><em>${rolData.tips || ''}</em>`;
+    function submitFeedback(mutId, text, auteur) {
+        if (!text.trim()) return;
+        const fbRef = push(getFeedbackRef(mutId));
+        set(fbRef, { text: text.trim(), auteur, timestamp: serverTimestamp() });
     }
-    
-    $('mutatieKlas').textContent = myClass;
-    $('mutatieScenario').textContent = currentScenario.titel;
-    $('feedKlas').textContent = myClass;
-}
-
-// --- PEERJS SETUP ---
-function initMicrofoon() {
-    return new Promise((resolve) => {
-        if (localStream) { microfoonToegestaan = true; resolve(true); return; }
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                localStream = stream;
-                localStream.getAudioTracks().forEach(t => t.enabled = false);
-                microfoonToegestaan = true;
-                microStatus.textContent = '✅ Microfoon gereed';
-                microStatus.className = 'micro-status ok';
-                resolve(true);
-            })
-            .catch(() => {
-                microfoonToegestaan = false;
-                microStatus.textContent = '❌ Geen microfoon';
-                microStatus.className = 'micro-status err';
-                resolve(false);
-            });
-    });
-}
-
-function startSpeaking() {
-    if (isSpeaking || !isConnected || myType !== 'police' || !microfoonToegestaan) return;
-    isSpeaking = true;
-    pttButton.classList.add('active');
-    pttButton.textContent = '🔴 SPREEKT...';
-    setStatus('speaking', 'Spreekt...');
-    if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = true);
-}
-
-function stopSpeaking() {
-    if (!isSpeaking) return;
-    isSpeaking = false;
-    pttButton.classList.remove('active');
-    pttButton.textContent = '🎤 HOU IN';
-    setStatus('online', 'Online');
-    if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
-}
-
-function callPeer(peerId) {
-    if (!isConnected || !localStream || allCalls.some(c => c.peer === peerId)) return;
-    const call = peer.call(peerId, localStream);
-    call.on('stream', (remoteStream) => {
-        const audioEl = document.createElement('audio');
-        audioEl.autoplay = true;
-        audioEl.srcObject = remoteStream;
-        document.body.appendChild(audioEl);
-        window._audioElements.set(call.peer, audioEl);
-        allCalls.push(call);
-    });
-    call.on('close', () => {
-        allCalls = allCalls.filter(c => c !== call);
-        if (window._audioElements.has(call.peer)) {
-            window._audioElements.get(call.peer).remove();
-            window._audioElements.delete(call.peer);
+    function resetDatabase() {
+        remove(getMutatieRef()).then(() => {
+            livefeedContainer.innerHTML = '<div class="empty-state">✅ Database gereset.</div>';
+        }).catch(err => console.error('Reset fout:', err));
+    }
+    function loadLivefeed() {
+        onValue(getMutatieRef(), (snapshot) => renderLivefeed(snapshot.val()));
+    }
+    function renderLivefeed(data) {
+        if (!data) {
+            livefeedContainer.innerHTML = '<div class="empty-state">📝 Nog geen mutaties ingeleverd.</div>';
+            return;
         }
-    });
-}
+        const entries = Object.entries(data).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+        let html = '';
+        entries.forEach(([id, mutatie]) => {
+            const tijd = mutatie.timestamp ? new Date(mutatie.timestamp).toLocaleString('nl-NL') : 'Onbekend';
+            html += `
+            <div class="mutatie-card">
+                <div class="mutatie-header">
+                    <span class="auteur">📝 ${mutatie.auteur || '?'} (${mutatie.rol || '?'})</span>
+                    <span class="tijd">${tijd}</span>
+                </div>
+                <div class="mutatie-field"><strong><span class="w-hint">W1</span> Wie:</strong> ${mutatie.wie || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W2</span> Wat:</strong> ${mutatie.wat || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W3</span> Waar:</strong> ${mutatie.waar || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W4</span> Wanneer:</strong> ${mutatie.wanneer || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W5</span> Waarmee:</strong> ${mutatie.waarmee || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W6</span> Wijze:</strong> ${mutatie.wijze || '-'}</div>
+                <div class="mutatie-field"><strong><span class="w-hint">W7</span> Waarom:</strong> ${mutatie.waarom || '-'}</div>
+                <div class="feedback-section">
+                    <strong style="color:#6c5ce7;">💬 Peer Feedback:</strong>
+                    <div class="feedback-list" id="feedback-${id}">
+                        ${mutatie.feedback ? Object.values(mutatie.feedback).sort((a,b)=> (a.timestamp||0)-(b.timestamp||0)).map(fb => `<div class="feedback-item"><span class="fb-auteur">${fb.auteur}:</span> ${fb.text}</div>`).join('') : '<div style="color:#667788; font-size:0.75rem;">Nog geen feedback.</div>'}
+                    </div>
+                    <div class="feedback-form">
+                        <input type="text" id="fb-input-${id}" placeholder="Mist er een W? Geef feedback..." />
+                        <button class="btn btn-feedback" id="fb-btn-${id}">📨</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        livefeedContainer.innerHTML = html || '<div class="empty-state">Geen mutaties.</div>';
+        entries.forEach(([id]) => {
+            const btn = document.getElementById(`fb-btn-${id}`);
+            const input = document.getElementById(`fb-input-${id}`);
+            if (btn && input) {
+                btn.addEventListener('click', () => {
+                    if (input.value.trim()) {
+                        submitFeedback(id, input.value, myUsername);
+                        input.value = '';
+                    }
+                });
+            }
+        });
+    }
 
-function setupDataConnection(conn) {
-    conn.on('open', () => {
-        if (!connections.some(c => c.peer === conn.peer)) {
-            connections.push(conn);
-            conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
-            if ((myType === 'police' || myRole === OC_ROLE) && localStream) callPeer(conn.peer);
+    // ----- Scenario laden -----
+    function loadScenarioForUser() {
+        currentScenario = getScenarioForClass(myClass);
+        if (!currentScenario) return;
+        scenarioTitle.textContent = '🚨 ' + currentScenario.titel;
+        scenarioText.textContent = currentScenario.context;
+        const rolData = currentScenario.rollen[myRole];
+        if (rolData) {
+            opdrachtBox.style.display = 'block';
+            opdrachtText.innerHTML = rolData.opdracht
+                ? `<strong>${rolData.beschrijving}</strong><br><br>${rolData.opdracht}`
+                : `<strong>${rolData.beschrijving}</strong><br><br><em>${rolData.tips || ''}</em>`;
+        } else {
+            opdrachtBox.style.display = 'none';
         }
-    });
-    conn.on('data', (data) => {
-        if (data.class !== myClass) return;
-        if (data.type === 'chat') {
-            const showToMe = myRole === OC_ROLE || 
-                (myType === 'police' && POLICE_ROLES.includes(data.role)) ||
-                (myType === 'non-police' && !POLICE_ROLES.includes(data.role) && data.role !== OC_ROLE);
-            if (showToMe) addChat(`${data.sender} (${data.role})`, data.text);
-        }
-    });
-    conn.on('close', () => {
-        connections = connections.filter(c => c !== conn);
-        updateUserList();
-    });
-}
+        $('mutatieKlas').textContent = myClass;
+        $('mutatieScenario').textContent = currentScenario.titel;
+        $('feedKlas').textContent = myClass;
+    }
 
-async function connectToRoom() {
-    myUsername = usernameInput.value.trim();
-    myClass = classSelect.value;
-    myRole = roleSelect.value;
-    myType = POLICE_ROLES.includes(myRole) ? 'police' : (myRole === OC_ROLE ? 'oc' : 'non-police');
-    myId = generateUniqueId();
-    
-    displayName.textContent = myUsername;
-    wtPeerId.textContent = `ID: ${myId}`;
-    updateRoleDisplay();
-    
-    loginScreen.classList.add('hidden');
-    wtScreen.classList.remove('hidden');
-    setStatus('connecting', 'Verbinden...');
-    loadScenarioForUser();
-    loadLivefeed();
-    
-    await initMicrofoon();
-    
-    peer = new Peer(myId);
-    peer.on('open', () => {
-        isConnected = true;
+    // ----- PeerJS en audio -----
+    function initMicrofoon() {
+        return new Promise((resolve) => {
+            if (localStream) { microfoonToegestaan = true; resolve(true); return; }
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    localStream = stream;
+                    localStream.getAudioTracks().forEach(t => t.enabled = false);
+                    microfoonToegestaan = true;
+                    microStatus.textContent = '✅ Microfoon gereed';
+                    microStatus.className = 'micro-status ok';
+                    resolve(true);
+                })
+                .catch(() => {
+                    microfoonToegestaan = false;
+                    microStatus.textContent = '❌ Geen microfoon';
+                    microStatus.className = 'micro-status err';
+                    resolve(false);
+                });
+        });
+    }
+    function startSpeaking() {
+        if (isSpeaking || !isConnected || myType !== 'police' || !microfoonToegestaan) return;
+        isSpeaking = true;
+        pttButton.classList.add('active');
+        pttButton.textContent = '🔴 SPREEKT...';
+        setStatus('speaking', 'Spreekt...');
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = true);
+    }
+    function stopSpeaking() {
+        if (!isSpeaking) return;
+        isSpeaking = false;
+        pttButton.classList.remove('active');
+        pttButton.textContent = '🎤 HOU IN';
         setStatus('online', 'Online');
-        wtChatInput.disabled = false;
-        wtChatSendBtn.disabled = false;
-        
-        if (myType === 'police' && microfoonToegestaan) {
-            pttContainer.classList.add('active');
-            pttButton.disabled = false;
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
+    }
+    function callPeer(peerId) {
+        if (!isConnected || !localStream || allCalls.some(c => c.peer === peerId)) return;
+        const call = peer.call(peerId, localStream);
+        call.on('stream', (remoteStream) => {
+            const audioEl = document.createElement('audio');
+            audioEl.autoplay = true;
+            audioEl.srcObject = remoteStream;
+            document.body.appendChild(audioEl);
+            window._audioElements.set(call.peer, audioEl);
+            allCalls.push(call);
+        });
+        call.on('close', () => {
+            allCalls = allCalls.filter(c => c !== call);
+            if (window._audioElements.has(call.peer)) {
+                window._audioElements.get(call.peer).remove();
+                window._audioElements.delete(call.peer);
+            }
+        });
+    }
+    function setupDataConnection(conn) {
+        conn.on('open', () => {
+            if (!connections.some(c => c.peer === conn.peer)) {
+                connections.push(conn);
+                conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
+                if ((myType === 'police' || myRole === OC_ROLE) && localStream) callPeer(conn.peer);
+            }
+        });
+        conn.on('data', (data) => {
+            if (data.class !== myClass) return;
+            if (data.type === 'chat') {
+                const showToMe = myRole === OC_ROLE ||
+                    (myType === 'police' && POLICE_ROLES.includes(data.role)) ||
+                    (myType === 'non-police' && !POLICE_ROLES.includes(data.role) && data.role !== OC_ROLE);
+                if (showToMe) addChat(`${data.sender} (${data.role})`, data.text);
+            }
+        });
+        conn.on('close', () => {
+            connections = connections.filter(c => c !== conn);
+            updateUserList();
+        });
+    }
+    async function connectToRoom() {
+        myUsername = usernameInput.value.trim();
+        myClass = classSelect.value;
+        if (!myUsername || myClass === 'INDIE') {
+            loginError.textContent = 'Vul een naam in en kies een geldige klas (geen Indie).';
+            return;
         }
-        
-        peer.on('connection', (conn) => { if (conn.peer !== myId) setupDataConnection(conn); else conn.close(); });
-        peer.on('call', (call) => {
-            if (!localStream) { call.answer(); return; }
-            call.answer(localStream);
-            call.on('stream', (remoteStream) => {
-                const audioEl = document.createElement('audio');
-                audioEl.autoplay = true;
-                audioEl.srcObject = remoteStream;
-                document.body.appendChild(audioEl);
-                window._audioElements.set(call.peer, audioEl);
-                allCalls.push(call);
+        myRole = assignRole(myClass, myUsername);
+        myType = POLICE_ROLES.includes(myRole) ? 'police' : (myRole === OC_ROLE ? 'oc' : 'non-police');
+        myId = generateUniqueId();
+
+        displayName.textContent = myUsername;
+        wtPeerId.textContent = `ID: ${myId}`;
+        updateRoleDisplay();
+
+        loginScreen.classList.add('hidden');
+        wtScreen.classList.remove('hidden');
+        setStatus('connecting', 'Verbinden...');
+        loadScenarioForUser();
+        loadLivefeed();
+
+        await initMicrofoon();
+
+        peer = new Peer(myId);
+        peer.on('open', () => {
+            isConnected = true;
+            setStatus('online', 'Online');
+            wtChatInput.disabled = false;
+            wtChatSendBtn.disabled = false;
+            if (myType === 'police' && microfoonToegestaan) {
+                pttContainer.classList.add('active');
+                pttButton.disabled = false;
+            }
+            peer.on('connection', (conn) => { if (conn.peer !== myId) setupDataConnection(conn); else conn.close(); });
+            peer.on('call', (call) => {
+                if (!localStream) { call.answer(); return; }
+                call.answer(localStream);
+                call.on('stream', (remoteStream) => {
+                    const audioEl = document.createElement('audio');
+                    audioEl.autoplay = true;
+                    audioEl.srcObject = remoteStream;
+                    document.body.appendChild(audioEl);
+                    window._audioElements.set(call.peer, audioEl);
+                    allCalls.push(call);
+                });
             });
         });
+        peer.on('error', (err) => {
+            if (err.type === 'unavailable-id') { myId = generateUniqueId(); connectToRoom(); }
+            else { addChat('❌ Fout', err.message, true); }
+        });
+        peer.on('disconnected', () => {
+            setTimeout(() => { if (peer) peer.destroy(); if (isConnected) connectToRoom(); }, 2000);
+        });
+    }
+
+    // ----- Event listeners -----
+    connectBtn.addEventListener('click', connectToRoom);
+    pttButton.addEventListener('mousedown', startSpeaking);
+    pttButton.addEventListener('mouseup', stopSpeaking);
+    pttButton.addEventListener('mouseleave', stopSpeaking);
+    pttButton.addEventListener('touchstart', (e) => { e.preventDefault(); startSpeaking(); });
+    pttButton.addEventListener('touchend', (e) => { e.preventDefault(); stopSpeaking(); });
+    wtChatSendBtn.addEventListener('click', () => {
+        const text = wtChatInput.value.trim();
+        if (!text) return;
+        connections.forEach(c => { try { c.send({ type: 'chat', sender: myUsername, role: myRole, class: myClass, text }); } catch(e) {} });
+        addChat(`📤 ${myUsername}`, text);
+        wtChatInput.value = '';
     });
-    peer.on('error', (err) => { if (err.type === 'unavailable-id') { myId = generateUniqueId(); connectToRoom(); } });
-    peer.on('disconnected', () => { setTimeout(() => { if (peer) peer.destroy(); if (isConnected) connectToRoom(); }, 2000); });
-}
-
-// --- EVENT LISTENERS ---
-connectBtn.addEventListener('click', () => {
-    if (!usernameInput.value.trim()) { loginError.textContent = 'Vul je naam in.'; return; }
-    if (classSelect.value === 'INDIE') { loginError.textContent = 'Kies een geldige klas.'; return; }
-    connectToRoom();
-});
-
-pttButton.addEventListener('mousedown', startSpeaking);
-pttButton.addEventListener('mouseup', stopSpeaking);
-pttButton.addEventListener('mouseleave', stopSpeaking);
-pttButton.addEventListener('touchstart', (e) => { e.preventDefault(); startSpeaking(); });
-pttButton.addEventListener('touchend', (e) => { e.preventDefault(); stopSpeaking(); });
-
-wtChatSendBtn.addEventListener('click', () => {
-    const text = wtChatInput.value.trim();
-    if (!text) return;
-    const data = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text };
-    connections.forEach(c => { try { c.send(data); } catch(e) {} });
-    addChat(`📤 ${myUsername}`, text);
-    wtChatInput.value = '';
-});
-
-wtChatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') wtChatSendBtn.click(); });
-
-submitMutatieBtn.addEventListener('click', submitMutatie);
-
-resetDbBtn.addEventListener('click', () => {
-    resetDialogKlas.textContent = myClass;
-    resetOverlay.classList.remove('hidden');
-    resetDialog.classList.remove('hidden');
-});
-cancelResetBtn.addEventListener('click', () => {
-    resetOverlay.classList.add('hidden');
-    resetDialog.classList.add('hidden');
-});
-confirmResetBtn.addEventListener('click', () => {
-    resetDatabase();
-    resetOverlay.classList.add('hidden');
-    resetDialog.classList.add('hidden');
-});
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
+    wtChatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') wtChatSendBtn.click(); });
+    submitMutatieBtn.addEventListener('click', submitMutatie);
+    resetDbBtn.addEventListener('click', () => {
+        resetDialogKlas.textContent = myClass;
+        resetOverlay.classList.remove('hidden');
+        resetDialog.classList.remove('hidden');
     });
-});
+    cancelResetBtn.addEventListener('click', () => {
+        resetOverlay.classList.add('hidden');
+        resetDialog.classList.add('hidden');
+    });
+    confirmResetBtn.addEventListener('click', () => {
+        resetDatabase();
+        resetOverlay.classList.add('hidden');
+        resetDialog.classList.add('hidden');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+    $('wtDisconnectBtn').addEventListener('click', () => {
+        if (peer) peer.destroy();
+        connections = []; allCalls.forEach(c => c.close()); allCalls = [];
+        isConnected = false;
+        loginScreen.classList.remove('hidden');
+        wtScreen.classList.add('hidden');
+    });
+    $('copyIdBtn').addEventListener('click', () => navigator.clipboard.writeText(myId));
+    $('shareRoomBtn').addEventListener('click', () => {
+        if (navigator.share) navigator.share({ title: 'Q1 Porto Training', url: window.location.href });
+        else navigator.clipboard.writeText(window.location.href);
+    });
+    $('qrToggleBtn').addEventListener('click', () => {
+        $('qrContainer').classList.toggle('show');
+        if ($('qrContainer').classList.contains('show')) {
+            $('qrcode').innerHTML = '';
+            new QRCode($('qrcode'), { text: window.location.href, width: 150, height: 150 });
+        }
+    });
+    $('closeQrBtn').addEventListener('click', () => $('qrContainer').classList.remove('show'));
 
-$('wtDisconnectBtn').addEventListener('click', () => {
-    if (peer) peer.destroy();
-    connections = [];
-    allCalls.forEach(c => c.close());
-    allCalls = [];
-    isConnected = false;
     loginScreen.classList.remove('hidden');
     wtScreen.classList.add('hidden');
-});
-
-$('copyIdBtn').addEventListener('click', () => navigator.clipboard.writeText(myId));
-$('shareRoomBtn').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Q1 Porto Training', url: window.location.href });
-    else navigator.clipboard.writeText(window.location.href);
-});
-$('qrToggleBtn').addEventListener('click', () => {
-    $('qrContainer').classList.toggle('show');
-    if ($('qrContainer').classList.contains('show')) {
-        $('qrcode').innerHTML = '';
-        new QRCode($('qrcode'), { text: window.location.href, width: 150, height: 150 });
-    }
-});
-$('closeQrBtn').addEventListener('click', () => $('qrContainer').classList.remove('show'));
-
-loginScreen.classList.remove('hidden');
-wtScreen.classList.add('hidden');
 </script>
 </body>
 </html>
