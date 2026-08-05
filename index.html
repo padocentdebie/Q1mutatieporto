@@ -11,6 +11,7 @@
     </script>
     
     <style>
+        /* ... (stijlen blijven identiek) ... */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -101,6 +102,12 @@
             border-bottom: 1px solid #1a2332;
         }
         .rol-info-box .voorbeeld-zinnen li:last-child { border-bottom: none; }
+        .porto-hint {
+            background: #1a2a3a; border-radius: 8px; padding: 8px 12px; margin-top: 8px;
+            border-left: 3px solid #f0c040; font-size: 0.9rem;
+            color: #f0c040;
+        }
+        .porto-hint strong { color: #fff; }
         .tab-nav { display: flex; gap: 4px; margin-bottom: 12px; }
         .tab-btn {
             flex: 1; padding: 8px; border: 2px solid #2a3a4a; border-radius: 10px;
@@ -150,7 +157,7 @@
 <body>
 
     <div id="app">
-        <!-- LOGIN SCHERM (zonder rolkeuze) -->
+        <!-- LOGIN SCHERM -->
         <div id="loginScreen" class="container">
             <h1>🚨 Q1 Porto Training</h1>
             <p class="sub">Auditieve informatie omzetten naar schriftelijke mutaties</p>
@@ -208,8 +215,10 @@
                     <div class="user-list" id="wtUserList"><span style="color:#667788; font-size:0.7rem;">Verbinden met klas...</span></div>
                     <div class="micro-status" id="microStatus">⏳ Start...</div>
                     
+                    <!-- PTT-knop voor alle politie-rollen -->
                     <div id="pttContainer" class="ptt-container">
                         <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
+                        <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Houd ingedrukt om te spreken via de porto</div>
                     </div>
                     
                     <div class="scenario-card">
@@ -228,6 +237,10 @@
                         <div class="opdracht" id="opdrachtBox">
                             <strong>📋 JOUW INSTRUCTIE:</strong>
                             <p id="opdrachtText"></p>
+                        </div>
+                        <!-- Extra hint voor porto-gebruik bij politie-rollen -->
+                        <div id="portoHint" class="porto-hint hidden">
+                            📻 <strong>Gebruik de PORTO-knop</strong> hierboven om te communiceren met collega's en het OC.
                         </div>
                     </div>
                     
@@ -314,7 +327,7 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // ----- Scenario's -----
+        // ----- Scenario's (met voorbeeldzinnen) -----
         const SCENARIOS = {
             "VERWARD": {
                 id: "VERWARD", titel: "Verwarde Vrouw in Winkelcentrum",
@@ -322,17 +335,14 @@
                 rollen: {
                     "Verdachte": { 
                         beschrijving: "Jij bent de verwarde vrouw (mevr. De Vries, 62). Je gooit met spullen en hebt een aansteker.", 
-                        tips: "Roep: 'Blijf van me af!' Je hebt een blauwe regenjas en rood mutsje.",
                         voorbeelden: ["'Blijf van me af! Ik doe niets verkeerds!'", "'Jullie moeten me met rust laten, ik ben niet gek!'", "'Ik heb een aansteker, ik steek alles in de fik!'"]
                     },
                     "Slachtoffer": { 
                         beschrijving: "Jij bent Kim (24), winkelier bij HEMA. De thermosfles vloog jouw kant op.", 
-                        tips: "Vertel: 'Ze gooide een thermosfles naar mijn winkel, hij is kapot.'",
                         voorbeelden: ["'Ze gooide een thermosfles naar mijn winkel, hij is helemaal kapot.'", "'Ik ben Kim, ik werk bij de HEMA. Ze schreeuwde heel hard.'", "'Het gebeurde rond 14:15, ik was net koffie aan het zetten.'"]
                     },
                     "Getuige": { 
                         beschrijving: "Jij bent meneer Bakker (55). Je stond bij de bakker en hebt alles gezien.", 
-                        tips: "Vertel: 'Ze begon om 14:15 te schreeuwen en gooide spullen.'",
                         voorbeelden: ["'Ik stond bij de bakker en zag haar opeens schreeuwen.'", "'Ze gooide een paar producten van de plank, het was een chaos.'", "'Ik denk dat ze verward is, ze gedroeg zich heel vreemd.'"]
                     },
                     "Agent": { 
@@ -368,17 +378,14 @@
                 rollen: {
                     "Verdachte": { 
                         beschrijving: "Dylan (17), zwarte Supreme-hoodie, boksbeugel, JBL-speaker.", 
-                        tips: "Roep: 'Dit is ónze plek!' Laat boksbeugel zien.",
                         voorbeelden: ["'Dit is ónze plek! Ga weg!'", "'We doen niets verkeerds, we staan hier gewoon.'", "'Ik heb een boksbeugel, durf je wat?'"]
                     },
                     "Slachtoffer": { 
                         beschrijving: "Meneer Hendriks (72). Bespuugd en gestruikeld over skateboard.", 
-                        tips: "Vertel: 'De leider met zwarte hoodie spuugde en liet een boksbeugel zien.'",
                         voorbeelden: ["'Die jongen met die zwarte hoodie spuugde naar me!'", "'Ik ben gevallen over hun skateboard, mijn knie is bezeerd.'", "'Ze doen dit al weken, iedere avond overlast.'"]
                     },
                     "Getuige": { 
                         beschrijving: "Mevrouw Yilmaz (38), bakkerij-eigenaresse. Herkent de jongens.", 
-                        tips: "Vertel: 'Dylan, Kevin en Mo. Boksbeugel! Al vaker overlast.'",
                         voorbeelden: ["'Ik ken ze, het zijn Dylan, Kevin en Mo.'", "'Die Dylan heeft altijd een boksbeugel bij zich.'", "'Ze zorgen voor veel overlast, al maanden lang.'"]
                     },
                     "Agent": { 
@@ -414,17 +421,14 @@
                 rollen: {
                     "Verdachte": { 
                         beschrijving: "Meneer Jansen (34), appartement 3B, Bose-boxen, techno.", 
-                        tips: "Roep: 'Het is weekend!' Je hebt al 8 eerdere meldingen.",
                         voorbeelden: ["'Het is weekend! Mag ik geen muziek meer?'", "'Ik heb al 8 eerdere meldingen gehad, dit is overdreven.'", "'De muziek staat niet eens hard, jullie overdrijven.'"]
                     },
                     "Slachtoffer": { 
                         beschrijving: "Mevrouw Van Dam (68), 2B. Servies trilt, logboek bijgehouden.", 
-                        tips: "Vertel: '9e keer! Om 22:00 begon de techno.'",
                         voorbeelden: ["'Dit is de 9e keer dat ik melding maak!'", "'Om 22:00 begon die vreselijke techno weer.'", "'Mijn servies trilt in de kast, ik kan niet slapen.'"]
                     },
                     "Getuige": { 
                         beschrijving: "Meneer De Boer (45), 3A. Hoort alles door dunne muren.", 
-                        tips: "Vertel: 'Om half 10 stemmen, vanaf 10 uur harde techno.'",
                         voorbeelden: ["'Ik hoor alles door de dunne muren.'", "'Om half 10 hoorde ik stemmen, vanaf 10 uur ging de techno aan.'", "'Het is echt niet normaal meer, al maanden.'"]
                     },
                     "Agent": { 
@@ -460,7 +464,6 @@
                 rollen: {
                     "Verdachte": { 
                         beschrijving: "Meneer Pieters (42), donkerblauwe North Face jas, dronken.", 
-                        tips: "Roep: 'Het is maar plassen!' Weigert ID.",
                         voorbeelden: ["'Het is maar plassen! Doe niet zo moeilijk.'", "'Ik weiger mijn ID te geven, jullie hebben geen recht.'", "'Ik heb niets verkeerds gedaan, het is geen misdaad.'"]
                     },
                     "Slachtoffer": { 
@@ -468,7 +471,6 @@
                     },
                     "Getuige": { 
                         beschrijving: "Mevrouw De Wit (29). Zag de man plassen bij de fietsenstalling.", 
-                        tips: "Vertel: 'Rond 01:10, hij wankelde, donkerblauwe jas.'",
                         voorbeelden: ["'Ik zag hem rond 01:10 plassen bij de fietsenstalling.'", "'Hij wankelde en had een donkerblauwe jas aan.'", "'Hij rook naar alcohol, hij was duidelijk dronken.'"]
                     },
                     "Agent": { 
@@ -500,7 +502,7 @@
             }
         };
 
-        // ----- Betere randomisatie -----
+        // ----- Randomisatie (verbeterd) -----
         function seededRandom(seed) {
             let s = seed;
             return function() {
@@ -561,6 +563,7 @@
         const rolTitelDisplay = $('rolTitelDisplay'), rolBeschrijvingDisplay = $('rolBeschrijvingDisplay');
         const voorbeeldZinnenList = $('voorbeeldZinnenList');
         const opdrachtBox = $('opdrachtBox'), opdrachtText = $('opdrachtText');
+        const portoHint = $('portoHint');
         const mutWie = $('mutWie'), mutWat = $('mutWat'), mutWaar = $('mutWaar');
         const mutWanneer = $('mutWanneer'), mutWaarmee = $('mutWaarmee'), mutWijze = $('mutWijze'), mutWaarom = $('mutWaarom');
         const submitMutatieBtn = $('submitMutatieBtn'), saveIndicator = $('saveIndicator');
@@ -705,7 +708,7 @@
             });
         }
 
-        // ----- Scenario laden -----
+        // ----- Scenario laden met porto-hint -----
         function loadScenarioForUser() {
             currentScenario = getScenarioForClass(myClass);
             if (!currentScenario) return;
@@ -742,6 +745,13 @@
                 rolBeschrijvingDisplay.textContent = 'Geen beschrijving.';
                 voorbeeldZinnenList.innerHTML = '<li>Geen voorbeeldzinnen.</li>';
                 opdrachtBox.style.display = 'none';
+            }
+
+            // Toon porto-hint voor politie-rollen (inclusief AangeslotenKoppel)
+            if (myType === 'police') {
+                portoHint.classList.remove('hidden');
+            } else {
+                portoHint.classList.add('hidden');
             }
 
             $('mutatieKlas').textContent = myClass;
@@ -815,9 +825,7 @@
             conn.on('open', () => {
                 if (!connections.some(c => c.peer === conn.peer)) {
                     connections.push(conn);
-                    // Stuur hallo bericht naar de nieuwe verbinding
                     conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
-                    // Start audio call als nodig
                     if ((myType === 'police' || myRole === OC_ROLE) && localStream) {
                         callPeer(conn.peer);
                     }
@@ -825,13 +833,9 @@
                 }
             });
             conn.on('data', (data) => {
-                // Alleen berichten van dezelfde klas verwerken
                 if (data.class && data.class !== myClass) return;
-                
                 if (data.type === 'hello') {
-                    // Iemand heeft zich voorgesteld
                     addChat(`🔗 ${data.username} (${data.role})`, 'is verbonden!', true);
-                    // Als we al verbonden zijn en deze persoon is nieuw, stuur dan ook een hello terug als die nog niet gestuurd is
                     if (isConnected && myUsername) {
                         try {
                             conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
@@ -840,12 +844,11 @@
                     updateUserList();
                     return;
                 }
-                
                 if (data.type === 'chat') {
                     const showToMe = myRole === OC_ROLE ||
                         (myType === 'police' && POLICE_ROLES.includes(data.role)) ||
                         (myType === 'non-police' && !POLICE_ROLES.includes(data.role) && data.role !== OC_ROLE) ||
-                        (myRole === data.role); // Altijd tonen als zelfde rol
+                        (myRole === data.role);
                     if (showToMe) {
                         addChat(`${data.sender} (${data.role})`, data.text);
                     }
@@ -880,14 +883,13 @@
 
             await initMicrofoon();
 
-            // Maak nieuwe Peer verbinding
             peer = new Peer(myId);
-            
             peer.on('open', () => {
                 isConnected = true;
                 setStatus('online', 'Online');
                 wtChatInput.disabled = false;
                 wtChatSendBtn.disabled = false;
+                // PTT actief voor alle politie-rollen
                 if (myType === 'police' && microfoonToegestaan) {
                     pttContainer.classList.add('active');
                     pttButton.disabled = false;
@@ -895,7 +897,6 @@
                 updateUserList();
                 addChat('📡 Systeem', 'Je bent verbonden met de porto!', true);
             });
-            
             peer.on('connection', (conn) => {
                 if (conn.peer !== myId) {
                     setupDataConnection(conn);
@@ -903,12 +904,8 @@
                     conn.close();
                 }
             });
-            
             peer.on('call', (call) => {
-                if (!localStream) { 
-                    call.answer(); 
-                    return; 
-                }
+                if (!localStream) { call.answer(); return; }
                 call.answer(localStream);
                 call.on('stream', (remoteStream) => {
                     const audioEl = document.createElement('audio');
@@ -921,23 +918,14 @@
                     allCalls.push(call);
                 });
             });
-            
             peer.on('error', (err) => {
                 console.error('Peer error:', err);
-                if (err.type === 'unavailable-id') { 
-                    myId = generateUniqueId(); 
-                    connectToRoom(); 
-                } else {
-                    addChat('❌ Fout', err.message, true);
-                }
+                if (err.type === 'unavailable-id') { myId = generateUniqueId(); connectToRoom(); } 
+                else { addChat('❌ Fout', err.message, true); }
             });
-            
             peer.on('disconnected', () => {
                 addChat('⚠️ Verbinding', 'Verbinding verloren, opnieuw verbinden...', true);
-                setTimeout(() => { 
-                    if (peer) peer.destroy(); 
-                    if (isConnected) connectToRoom(); 
-                }, 2000);
+                setTimeout(() => { if (peer) peer.destroy(); if (isConnected) connectToRoom(); }, 2000);
             });
         }
 
@@ -948,36 +936,15 @@
         pttButton.addEventListener('mouseleave', stopSpeaking);
         pttButton.addEventListener('touchstart', (e) => { e.preventDefault(); startSpeaking(); });
         pttButton.addEventListener('touchend', (e) => { e.preventDefault(); stopSpeaking(); });
-        
-        // Chat sturen
         wtChatSendBtn.addEventListener('click', () => {
             const text = wtChatInput.value.trim();
             if (!text) return;
-            
-            const chatData = { 
-                type: 'chat', 
-                sender: myUsername, 
-                role: myRole, 
-                class: myClass, 
-                text: text 
-            };
-            
-            // Stuur naar alle verbonden peers
-            connections.forEach(c => { 
-                try { 
-                    c.send(chatData); 
-                } catch(e) { 
-                    console.warn('Kon niet sturen naar', c.peer); 
-                } 
-            });
-            
-            // Toon eigen bericht
+            const chatData = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text: text };
+            connections.forEach(c => { try { c.send(chatData); } catch(e) {} });
             addChat(`📤 ${myUsername} (${myRole})`, text);
             wtChatInput.value = '';
         });
-        
         wtChatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') wtChatSendBtn.click(); });
-        
         submitMutatieBtn.addEventListener('click', submitMutatie);
         resetDbBtn.addEventListener('click', () => {
             resetDialogKlas.textContent = myClass;
