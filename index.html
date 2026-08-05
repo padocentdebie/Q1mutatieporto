@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>📻 Porto</title>
+    <title>📻 Porto - Professionele communicatie</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -124,7 +124,7 @@
     <!-- LOGIN -->
     <div id="loginScreen" class="container">
         <h1>📻 Porto Training</h1>
-        <p class="sub">Walkie Talkie voor de opleiding</p>
+        <p class="sub">Professionele communicatie voor de opleiding</p>
         <div class="form-group">
             <label>👤 Jouw naam</label>
             <input type="text" id="usernameInput" placeholder="Bijv. Jan" />
@@ -144,7 +144,7 @@
         </div>
         <button class="btn btn-success" id="connectBtn">🔗 Verbinden</button>
         <div id="loginError" class="error"></div>
-        <div class="info-text">Iedereen krijgt automatisch een rol.<br>Chat werkt altijd. PTT alleen met microfoon.</div>
+        <div class="info-text">Automatische roltoewijzing. Chat is primair, audio is optioneel.</div>
     </div>
 
     <!-- PORTO SCHERM -->
@@ -163,14 +163,16 @@
             </div>
             <div class="user-list" id="userList"><span style="color:#667788;">Verbinden...</span></div>
             <div class="micro-status" id="microStatus">
-                ⏳ Microfoon starten...
+                ⏳ Microfoon wordt gestart...
                 <button class="retry-btn hidden" id="retryMicBtn">🔄 Probeer opnieuw</button>
             </div>
 
+            <!-- PTT-knop -->
             <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
             <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Ingedrukt houden om te spreken</div>
 
-            <div class="chat-box" id="chatMessages"><div style="color:#667788; text-align:center;">Porto-berichten</div></div>
+            <!-- CHAT (altijd actief) -->
+            <div class="chat-box" id="chatMessages"><div style="color:#667788; text-align:center;">📨 Porto-berichten</div></div>
             <div class="chat-input-row">
                 <input type="text" id="chatInput" placeholder="Typ een bericht..." disabled />
                 <button id="chatSendBtn" disabled>📨</button>
@@ -258,6 +260,7 @@
     let peerListUnsubscribe = null;
     let peersRef = null;
     let microEnabled = false;
+    let isMicInitializing = false;
 
     function generateId() {
         return 'P-' + Math.random().toString(36).substr(2, 8);
@@ -292,8 +295,10 @@
         userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
     }
 
-    // ----- Microfoon (altijd proberen, maar niet blokkerend) -----
+    // ----- Microfoon (optioneel, niet-blokkerend) -----
     async function initMicrophone() {
+        if (isMicInitializing) return;
+        isMicInitializing = true;
         microStatus.textContent = '⏳ Microfoon wordt gestart...';
         microStatus.className = 'micro-status';
         retryMicBtn.classList.add('hidden');
@@ -306,45 +311,50 @@
             microStatus.textContent = '✅ Microfoon gereed';
             microStatus.className = 'micro-status ok';
             retryMicBtn.classList.add('hidden');
-            // Schakel PTT in
             pttButton.disabled = false;
             pttButton.classList.remove('disabled');
+            // Bestaande peers bellen met audio
+            if (isConnected) {
+                for (let peerId of connections) {
+                    if (!audioConnections.has(peerId)) {
+                        callPeer(peerId);
+                    }
+                }
+            }
+            isMicInitializing = false;
             return true;
         } catch (err) {
             microEnabled = false;
             if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                microStatus.textContent = '⚠️ Microfoontoegang geweigerd. Geef toestemming in de browser of gebruik alleen chat.';
+                microStatus.textContent = '⚠️ Microfoontoegang geweigerd. Alleen chat beschikbaar.';
                 microStatus.className = 'micro-status warning';
             } else {
                 microStatus.textContent = '❌ Geen microfoon – chat werkt wel.';
                 microStatus.className = 'micro-status err';
             }
             retryMicBtn.classList.remove('hidden');
-            // PTT uitschakelen
             pttButton.disabled = true;
             pttButton.classList.add('disabled');
+            isMicInitializing = false;
             return false;
         }
     }
 
     async function retryMicrophone() {
-        // Sluit oude stream als die bestaat
         if (localStream) {
             localStream.getTracks().forEach(t => t.stop());
             localStream = null;
         }
-        await initMicrophone();
-        // Als microfoon nu werkt, probeer audio op te zetten naar bestaande peers
-        if (microEnabled && isConnected) {
-            for (let peerId of connections) {
-                if (!audioConnections.has(peerId)) {
-                    callPeer(peerId);
-                }
-            }
+        // Verwijder oude audio verbindingen
+        for (let entry of audioConnections.values()) {
+            entry.call.close();
+            entry.audio.remove();
         }
+        audioConnections.clear();
+        await initMicrophone();
     }
 
-    // ----- PTT -----
+    // ----- PTT (alleen als microfoon beschikbaar) -----
     function startSpeaking() {
         if (!isConnected || !microEnabled || isSpeaking) return;
         isSpeaking = true;
@@ -363,9 +373,9 @@
         if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
     }
 
-    // ----- Audio oproep -----
+    // ----- Audio oproep (alleen als microfoon beschikbaar) -----
     function callPeer(peerId) {
-        if (!localStream) return;
+        if (!localStream || !microEnabled) return;
         if (audioConnections.has(peerId)) return;
         const call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
@@ -386,7 +396,7 @@
         });
     }
 
-    // ----- Data verbinding -----
+    // ----- Data verbinding (chat) - ALTIJD actief -----
     function setupDataConnection(conn) {
         const peerId = conn.peer;
         if (connections.has(peerId)) {
@@ -397,8 +407,12 @@
         conn.on('open', () => {
             connections.add(peerId);
             dataConnections.set(peerId, conn);
+            // Stuur hallo met gegevens
             conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
-            if (localStream) callPeer(peerId);
+            // Audio oproep alleen als microfoon beschikbaar is
+            if (microEnabled && localStream) {
+                callPeer(peerId);
+            }
             updateUserList();
             addChat('🔗', `${peerId} is verbonden`, true);
         });
@@ -406,7 +420,7 @@
         conn.on('data', (data) => {
             if (data.class && data.class !== myClass) return;
             if (data.type === 'hello') {
-                // We hebben al een verbinding; geen actie nodig
+                // Geen actie nodig, al verbonden
                 return;
             }
             if (data.type === 'chat') {
@@ -491,28 +505,19 @@
         portoScreen.classList.remove('hidden');
         setStatus('connecting', 'Verbinden...');
 
-        // Eerst peer opzetten (zodat chat snel werkt)
+        // 1. Eerst PeerJS opzetten (chat is prioriteit)
         peer = new Peer(myId);
         peer.on('open', () => {
             isConnected = true;
             setStatus('online', 'Online');
-            // Chat altijd inschakelen
+            // Chat ALTIJD inschakelen
             chatInput.disabled = false;
             chatSendBtn.disabled = false;
             addChat('📡', 'Je bent verbonden met de porto!', true);
             startPeerDiscovery();
 
-            // Microfoon pas daarna proberen (niet blokkerend)
-            initMicrophone().then(() => {
-                // Als microfoon later actief wordt, kunnen we audio opzetten voor bestaande peers
-                if (microEnabled && isConnected) {
-                    for (let peerId of connections) {
-                        if (!audioConnections.has(peerId)) {
-                            callPeer(peerId);
-                        }
-                    }
-                }
-            });
+            // 2. Microfoon optioneel (niet-blokkerend)
+            initMicrophone();
         });
 
         peer.on('connection', (conn) => {
@@ -524,7 +529,10 @@
         });
 
         peer.on('call', (call) => {
-            if (!localStream) { call.answer(); return; }
+            if (!localStream || !microEnabled) { 
+                call.answer(); 
+                return; 
+            }
             call.answer(localStream);
             call.on('stream', (remoteStream) => {
                 const audio = document.createElement('audio');
