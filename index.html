@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>📻 Porto - Lesmutatie</title>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js">
-    </script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
+        /* Alle stijlen blijven identiek aan de vorige werkende versie */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -182,7 +182,7 @@
         .admin-bar .btn { width: auto; padding: 8px 16px; }
         .empty-state { text-align: center; color: #667788; padding: 20px; font-style: italic; }
 
-        /* Instructieblok stijlen */
+        /* Instructieblok */
         .instructie-blok {
             background: #0d1624;
             border-radius: 12px;
@@ -256,938 +256,177 @@
 </head>
 <body>
 
-    <div id="app">
-        <!-- LOGIN SCHERM -->
-        <div id="loginScreen" class="container">
-            <h1>📻 Porto Lesmutatie</h1>
-            <p class="sub">Simulatie: informatie ophalen en mutatie opmaken</p>
+<div id="app">
+    <!-- LOGIN SCHERM -->
+    <div id="loginScreen" class="container">
+        <h1>📻 Porto Lesmutatie</h1>
+        <p class="sub">Simulatie: informatie ophalen en mutatie opmaken</p>
 
-            <div class="form-group">
-                <label>👤 Jouw naam</label>
-                <input type="text" id="usernameInput" placeholder="Bijv. Jan" />
-            </div>
-            <div class="form-group">
-                <label>🏫 Klas</label>
-                <select id="classSelect">
-                    <option value="ALPHA">ALPHA</option>
-                    <option value="BRAVO">BRAVO</option>
-                    <option value="CHARLIE">CHARLIE</option>
-                    <option value="DELTA">DELTA</option>
-                    <option value="ECHO">ECHO</option>
-                    <option value="FOXTROT">FOXTROT</option>
-                    <option value="GOLF">GOLF</option>
-                    <option value="HOTEL">HOTEL</option>
-                </select>
-            </div>
-            <button class="btn btn-success" id="connectBtn">🔗 Verbinden</button>
-            <div id="loginError" class="error"></div>
-
-            <!-- INSTRUCTIEBLOK -->
-            <div class="instructie-blok">
-                <h3>📱 Instructies voor studenten</h3>
-
-                <div class="instructie-stap">
-                    <strong>Stap 1: Gebruik de juiste browser</strong>
-                    <p>Open <strong>DuckDuckGo</strong> (of Chrome/Firefox in incognitomodus).
-                        <span class="waarschuwing">GEEN Samsung-browser!</span>
-                        Die werkt niet goed met de porto.</p>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 2: Open deze link</strong>
-                    <p>Typ in de adresbalk: <code>https://tinyurl.com/Q1mutatieporto</code></p>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 3: Log in</strong>
-                    <p>Vul je voornaam in, kies je klas en klik op Verbinden.</p>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 4: Jouw rol</strong>
-                    <p>Je krijgt automatisch een rol: <strong>Burger</strong>, <strong>Collega 1</strong>, <strong>Collega 2</strong> of <strong>Meldkamer</strong>.</p>
-                    <ul>
-                        <li><strong>Burger:</strong> Heeft informatie, maar <span class="waarschuwing">geen PTT</span> (geen spraak).</li>
-                        <li><strong>Collega 1 & 2:</strong> Agenten met PTT, spreken via de porto.</li>
-                        <li><strong>Meldkamer:</strong> Het OC, stuurt de porto-communicatie en vult de mutatie in.</li>
-                    </ul>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 5: Communiceren</strong>
-                    <p><strong>Chatten:</strong> Typ een bericht en klik op 📨. <strong>Spreken (PTT):</strong> Houd de rode knop ingedrukt.</p>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 6: De 7 W's</strong>
-                    <p>De meldkamer moet deze informatie ophalen:</p>
-                    <div class="w-lijst">
-                        <span class="w-hint">W1</span> Wie &nbsp;
-                        <span class="w-hint">W2</span> Wat &nbsp;
-                        <span class="w-hint">W3</span> Waar &nbsp;
-                        <span class="w-hint">W4</span> Wanneer &nbsp;
-                        <span class="w-hint">W5</span> Waarmee &nbsp;
-                        <span class="w-hint">W6</span> Wijze &nbsp;
-                        <span class="w-hint">W7</span> Waarom
-                    </div>
-                </div>
-
-                <div class="instructie-stap">
-                    <strong>Stap 7: Controleren</strong>
-                    <p>Bekijk de ingediende mutatie in de <strong>Livefeed</strong> en check of alle W's zijn ingevuld.</p>
-                </div>
-
-                <div class="instructie-tip">
-                    💡 <strong>Tip:</strong> Noteer tussendoor wat je hoort, zodat de meldkamer niets vergeet!
-                </div>
-            </div>
+        <div class="form-group">
+            <label>👤 Jouw naam</label>
+            <input type="text" id="usernameInput" placeholder="Bijv. Jan" />
         </div>
+        <div class="form-group">
+            <label>🏫 Klas</label>
+            <select id="classSelect">
+                <option value="ALPHA">ALPHA</option>
+                <option value="BRAVO">BRAVO</option>
+                <option value="CHARLIE">CHARLIE</option>
+                <option value="DELTA">DELTA</option>
+                <option value="ECHO">ECHO</option>
+                <option value="FOXTROT">FOXTROT</option>
+                <option value="GOLF">GOLF</option>
+                <option value="HOTEL">HOTEL</option>
+            </select>
+        </div>
+        <button class="btn btn-success" id="connectBtn">🔗 Verbinden</button>
+        <div id="loginError" class="error"></div>
 
-        <!-- HOOFDSCHERM (Porto) -->
-        <div id="mainScreen" class="hidden">
-            <div class="tab-nav">
-                <button class="tab-btn active" data-tab="tab-porto">📻 Porto</button>
-                <button class="tab-btn" data-tab="tab-mutatie">📝 Mutatie</button>
-                <button class="tab-btn" data-tab="tab-feed">📋 Livefeed</button>
-                <button class="tab-btn" data-tab="tab-info">📋 Rollen</button>
+        <!-- INSTRUCTIEBLOK -->
+        <div class="instructie-blok">
+            <h3>📱 Instructies voor studenten</h3>
+            <div class="instructie-stap">
+                <strong>Stap 1: Gebruik de juiste browser</strong>
+                <p>Open <strong>DuckDuckGo</strong> (of Chrome/Firefox in incognitomodus). <span class="waarschuwing">GEEN Samsung-browser!</span></p>
             </div>
-
-            <!-- TAB PORTO -->
-            <div id="tab-porto" class="tab-content active">
-                <div class="container">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:bold; color:#f0c040;" id="displayName">-</span>
-                        <span id="roleDisplay" class="role-badge">Rol</span>
-                    </div>
-                    <div class="status-bar">
-                        <span>
-                            <span class="status-led offline" id="statusLed"></span>
-                            <span id="statusText">Niet verbonden</span>
-                        </span>
-                        <span id="userCount" style="font-size:0.8rem;">👥 0</span>
-                    </div>
-                    <div class="user-list" id="userList"><span style="color:#667788;">Verbinden...</span></div>
-                    <div class="micro-status" id="microStatus">
-                        ⏳ Microfoon wordt gestart...
-                        <button class="retry-btn hidden" id="retryMicBtn">🔄 Probeer opnieuw</button>
-                    </div>
-
-                    <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
-                    <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Ingedrukt houden om te spreken</div>
-
-                    <div class="chat-box" id="chatMessages"><div style="color:#667788; text-align:center;">📨 Porto-berichten</div></div>
-                    <div class="chat-input-row">
-                        <input type="text" id="chatInput" placeholder="Typ een bericht..." disabled />
-                        <button id="chatSendBtn" disabled>📨</button>
-                    </div>
-
-                    <div class="admin-bar">
-                        <button class="btn btn-warning" id="nextCaseBtn" style="display:none;">➡️ Volgende casus</button>
-                    </div>
-
-                    <button class="btn btn-danger" id="disconnectBtn" style="margin-top:10px;">🚪 Verbinding verbreken</button>
+            <div class="instructie-stap">
+                <strong>Stap 2: Open deze link</strong>
+                <p>Typ in de adresbalk: <code>https://tinyurl.com/Q1mutatieporto</code></p>
+            </div>
+            <div class="instructie-stap">
+                <strong>Stap 3: Log in</strong>
+                <p>Vul je voornaam in, kies je klas en klik op Verbinden.</p>
+            </div>
+            <div class="instructie-stap">
+                <strong>Stap 4: Jouw rol</strong>
+                <p>De <strong>eerste drie</strong> studenten krijgen de rollen <strong>Burger, Collega1, Collega2</strong>. Alle volgende studenten worden <strong>Meldkamer</strong>.</p>
+                <ul>
+                    <li><strong>Burger:</strong> Heeft informatie, maar <span class="waarschuwing">geen PTT</span> (geen spraak).</li>
+                    <li><strong>Collega 1 & 2:</strong> Agenten met PTT, spreken via de porto.</li>
+                    <li><strong>Meldkamer:</strong> Het OC, stuurt de porto-communicatie en vult de mutatie in.</li>
+                </ul>
+            </div>
+            <div class="instructie-stap">
+                <strong>Stap 5: Communiceren</strong>
+                <p><strong>Chatten:</strong> Typ een bericht en klik op 📨. <strong>Spreken (PTT):</strong> Houd de rode knop ingedrukt.</p>
+            </div>
+            <div class="instructie-stap">
+                <strong>Stap 6: De 7 W's</strong>
+                <p>De meldkamer moet deze informatie ophalen:</p>
+                <div class="w-lijst">
+                    <span class="w-hint">W1</span> Wie &nbsp;
+                    <span class="w-hint">W2</span> Wat &nbsp;
+                    <span class="w-hint">W3</span> Waar &nbsp;
+                    <span class="w-hint">W4</span> Wanneer &nbsp;
+                    <span class="w-hint">W5</span> Waarmee &nbsp;
+                    <span class="w-hint">W6</span> Wijze &nbsp;
+                    <span class="w-hint">W7</span> Waarom
                 </div>
             </div>
-
-            <!-- TAB MUTATIE (alleen voor Meldkamer) -->
-            <div id="tab-mutatie" class="tab-content">
-                <div class="container">
-                    <h2>📝 Mutatieformulier</h2>
-                    <p class="sub">Vul de 7 W's in op basis van de verkregen informatie.</p>
-                    <div id="casusInfo" style="background:#0d1624; padding:10px; border-radius:8px; margin-bottom:12px; border-left:4px solid #f0c040;">
-                        <strong style="color:#f0c040;">Huidige casus:</strong> <span id="currentCaseName">-</span>
-                    </div>
-                    <div class="mutatie-form">
-                        <div class="form-group"><label><span class="w-hint">W1</span> WIE</label><textarea id="mutWie"></textarea></div>
-                        <div class="form-group"><label><span class="w-hint">W2</span> WAT</label><textarea id="mutWat"></textarea></div>
-                        <div class="form-group"><label><span class="w-hint">W3</span> WAAR</label><textarea id="mutWaar"></textarea></div>
-                        <div class="form-group"><label><span class="w-hint">W4</span> WANNEER</label><input type="datetime-local" id="mutWanneer" /></div>
-                        <div class="form-group"><label><span class="w-hint">W5</span> WAARMEE</label><textarea id="mutWaarmee"></textarea></div>
-                        <div class="form-group"><label><span class="w-hint">W6</span> WIJZE</label><textarea id="mutWijze"></textarea></div>
-                        <div class="form-group"><label><span class="w-hint">W7</span> WAAROM</label><textarea id="mutWaarom"></textarea></div>
-                        <button class="btn btn-primary" id="submitMutatieBtn">📤 Mutatie Inleveren</button>
-                        <div class="save-indicator" id="saveIndicator"></div>
-                    </div>
-                </div>
+            <div class="instructie-stap">
+                <strong>Stap 7: Controleren</strong>
+                <p>Bekijk de ingediende mutatie in de <strong>Livefeed</strong> en check of alle W's zijn ingevuld.</p>
             </div>
-
-            <!-- TAB LIVEFEED -->
-            <div id="tab-feed" class="tab-content">
-                <div class="container">
-                    <h2>📋 Livefeed - Klas <span id="feedKlas">-</span></h2>
-                    <p class="sub">Laatste mutatie ter controle</p>
-                    <div id="livefeedContainer"><div class="empty-state">⏳ Wachten op mutatie...</div></div>
-                </div>
-            </div>
-
-            <!-- TAB INFO -->
-            <div id="tab-info" class="tab-content">
-                <div class="container">
-                    <h2>📋 Rol informatie</h2>
-                    <div id="rolInfoContainer">
-                        <div class="rolinfo">
-                            <span class="label">Jouw rol:</span>
-                            <div class="content" id="myRoleInfo">-</div>
-                        </div>
-                        <div id="otherRolesInfo"></div>
-                    </div>
-                </div>
+            <div class="instructie-tip">
+                💡 <strong>Tip:</strong> Noteer tussendoor wat je hoort, zodat de meldkamer niets vergeet!
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    <!-- HOOFDSCHERM -->
+    <div id="mainScreen" class="hidden">
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="tab-porto">📻 Porto</button>
+            <button class="tab-btn" data-tab="tab-mutatie">📝 Mutatie</button>
+            <button class="tab-btn" data-tab="tab-feed">📋 Livefeed</button>
+            <button class="tab-btn" data-tab="tab-info">📋 Rollen</button>
+        </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
-            authDomain: "speeltuin-recherche.firebaseapp.com",
-            databaseURL: "https://speeltuin-recherche-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "speeltuin-recherche",
-            storageBucket: "speeltuin-recherche.firebasestorage.app",
-            messagingSenderId: "499912834123",
-            appId: "1:499912834123:web:3c84cbf4d5eb13131961ce"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        <!-- TAB PORTO -->
+        <div id="tab-porto" class="tab-content active">
+            <div class="container">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:bold; color:#f0c040;" id="displayName">-</span>
+                    <span id="roleDisplay" class="role-badge">Rol</span>
+                </div>
+                <div class="status-bar">
+                    <span>
+                        <span class="status-led offline" id="statusLed"></span>
+                        <span id="statusText">Niet verbonden</span>
+                    </span>
+                    <span id="userCount" style="font-size:0.8rem;">👥 0</span>
+                </div>
+                <div class="user-list" id="userList"><span style="color:#667788;">Verbinden...</span></div>
+                <div class="micro-status" id="microStatus">
+                    ⏳ Microfoon wordt gestart...
+                    <button class="retry-btn hidden" id="retryMicBtn">🔄 Probeer opnieuw</button>
+                </div>
 
-        // ----- SCENARIO's (5 stuks) -----
-        const SCENARIOS = [
-            {
-                id: 'scenario1',
-                naam: "Winkeldiefstal",
-                rollen: {
-                    Burger: {
-                        info: "Je bent getuige van een winkeldiefstal in de supermarkt.\nJe zag een man een fles whisky in zijn jas stoppen en weglopen.\nJe hebt de man niet eerder gezien.\nHet was rond 14:30 uur.\nDe man droeg een donkere jas en een pet."
-                    },
-                    Collega1: {
-                        info: "Je bent de eerste agent ter plaatse.\nDe supermarktmanager geeft aan dat er een fles whisky gestolen is (ter waarde van € 40).\nDe verdachte is weggerend richting het station.\nSignalement: man, 40-45 jaar, 1.80 m, donkere jas, blauwe pet, spijkerbroek."
-                    },
-                    Collega2: {
-                        info: "Je bent de tweede agent.\nJe hebt een getuige gesproken die de verdachte zag wegrennen.\nHij stapte in een zwarte auto, kenteken onbekend.\nDe getuige dacht dat de man een tatoeage op zijn nek had."
-                    },
-                    Meldkamer: {
-                        info: "Je bent de meldkamer. Je hebt nog geen informatie. Stel vragen aan collega's om de 7 W's te achterhalen."
-                    }
-                }
-            },
-            {
-                id: 'scenario2',
-                naam: "Verkeersongeval",
-                rollen: {
-                    Burger: {
-                        info: "Je bent een omstander die een aanrijding zag tussen een personenauto en een fietser.\nHet gebeurde op de kruising van de Kerkstraat en de Molenweg.\nJe hoorde een harde knal en zag de fietser over de grond rollen.\nDe fietser was een oudere man, ongeveer 70 jaar."
-                    },
-                    Collega1: {
-                        info: "Je bent de eerste agent ter plaatse.\nDe fietser is gewond aan zijn been en is naar het ziekenhuis gebracht.\nDe automobilist is een vrouw van middelbare leeftijd.\nZe verklaarde dat ze de fietser niet had gezien door de laagstaande zon."
-                    },
-                    Collega2: {
-                        info: "Je bent de tweede agent.\nJe hebt de schade opgenomen: de fiets is total loss, de auto heeft een deuk in de motorkap.\nEr waren geen andere getuigen, behalve de omstander die jullie hebben gesproken."
-                    },
-                    Meldkamer: {
-                        info: "Je bent de meldkamer. Je hebt nog geen informatie. Stel vragen."
-                    }
-                }
-            },
-            {
-                id: 'scenario3',
-                naam: "Geluidsoverlast",
-                rollen: {
-                    Burger: {
-                        info: "Je bent een buurtbewoner die al weken last heeft van harde muziek uit het pand ernaast.\nHet is vooral 's avonds en 's nachts erg.\nJe hebt de politie al meerdere keren gebeld, maar er verandert niets.\nVannacht was het weer zo erg, je kon niet slapen."
-                    },
-                    Collega1: {
-                        info: "Je bent de wijkagent.\nJe hebt al meerdere meldingen van geluidsoverlast op dit adres.\nDe bewoner is een jonge man die vaak feestjes geeft.\nEr is al een officiële waarschuwing gegeven."
-                    },
-                    Collega2: {
-                        info: "Je bent de collega die ter plaatse gaat.\nJe hoort al van buiten de harde bas.\nDe bewoner doet open en lijkt onder invloed van alcohol.\nHij weigert de muziek zachter te zetten."
-                    },
-                    Meldkamer: {
-                        info: "Je bent de meldkamer. Je hebt nog geen informatie."
-                    }
-                }
-            },
-            {
-                id: 'scenario4',
-                naam: "Huiselijk geweld",
-                rollen: {
-                    Burger: {
-                        info: "Je bent de buurman die schreeuwende stemmen hoorde en een klap.\nJe keek uit het raam en zag een man en vrouw ruzie maken op de stoep.\nDe man duwde de vrouw hard tegen de muur.\nJe hebt de politie gebeld."
-                    },
-                    Collega1: {
-                        info: "Je bent de eerste agent ter plaatse.\nDe vrouw heeft een blauw oog en is erg overstuur.\nDe man is weggegaan voor jullie aankwamen.\nDe vrouw wil geen aangifte doen, ze is bang."
-                    },
-                    Collega2: {
-                        info: "Je bent de tweede agent.\nJe hebt een buurvrouw gesproken die zegt dat dit vaker gebeurt.\nZe vertelt dat de man vaak agressief is en dat de vrouw regelmatig blauwe plekken heeft.\nZe hoopt dat jullie er wat aan doen."
-                    },
-                    Meldkamer: {
-                        info: "Je bent de meldkamer. Je hebt nog geen informatie."
-                    }
-                }
-            },
-            {
-                id: 'scenario5',
-                naam: "Diefstal uit auto",
-                rollen: {
-                    Burger: {
-                        info: "Je bent de eigenaar van de auto.\nJe hebt je auto geparkeerd voor de supermarkt.\nToen je terugkwam, zag je dat het zijraam was ingeslagen.\nEr is een tas met een laptop en portemonnee uit de auto gestolen.\nJe hebt de politie gebeld."
-                    },
-                    Collega1: {
-                        info: "Je bent de eerste agent ter plaatse.\nJe hebt de schade opgenomen en een buurtonderzoek gedaan.\nEen getuige zegt een man te hebben zien wegrennen met een tas.\nSignalement: jongeman, 20-25 jaar, donkere kleding, pet."
-                    },
-                    Collega2: {
-                        info: "Je bent de tweede agent.\nJe hebt camerabeelden opgevraagd van de supermarkt.\nOp de beelden is te zien dat de dader een zwarte jas droeg en een rugzak bij zich had.\nHij rende weg in de richting van het park."
-                    },
-                    Meldkamer: {
-                        info: "Je bent de meldkamer. Je hebt nog geen informatie."
-                    }
-                }
-            }
-        ];
+                <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
+                <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Ingedrukt houden om te spreken</div>
 
-        // ----- Hulp functies -----
-        function getCaseRef() { return ref(db, `cases/${myClass}`); }
-        function getMutatieRef() { return ref(db, `mutaties/${myClass}`); }
+                <div class="chat-box" id="chatMessages"><div style="color:#667788; text-align:center;">📨 Porto-berichten</div></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chatInput" placeholder="Typ een bericht..." disabled />
+                    <button id="chatSendBtn" disabled>📨</button>
+                </div>
 
-        // ----- DOM refs -----
-        const $ = id => document.getElementById(id);
-        const loginScreen = $('loginScreen');
-        const mainScreen = $('mainScreen');
-        const usernameInput = $('usernameInput');
-        const classSelect = $('classSelect');
-        const connectBtn = $('connectBtn');
-        const loginError = $('loginError');
-        const displayName = $('displayName');
-        const roleDisplay = $('roleDisplay');
-        const statusLed = $('statusLed');
-        const statusText = $('statusText');
-        const userCount = $('userCount');
-        const userList = $('userList');
-        const microStatus = $('microStatus');
-        const retryMicBtn = $('retryMicBtn');
-        const pttButton = $('pttButton');
-        const chatMessages = $('chatMessages');
-        const chatInput = $('chatInput');
-        const chatSendBtn = $('chatSendBtn');
-        const disconnectBtn = $('disconnectBtn');
-        const mutWie = $('mutWie');
-        const mutWat = $('mutWat');
-        const mutWaar = $('mutWaar');
-        const mutWanneer = $('mutWanneer');
-        const mutWaarmee = $('mutWaarmee');
-        const mutWijze = $('mutWijze');
-        const mutWaarom = $('mutWaarom');
-        const submitMutatieBtn = $('submitMutatieBtn');
-        const saveIndicator = $('saveIndicator');
-        const myRoleInfo = $('myRoleInfo');
-        const otherRolesInfo = $('otherRolesInfo');
-        const livefeedContainer = $('livefeedContainer');
-        const feedKlas = $('feedKlas');
-        const currentCaseName = $('currentCaseName');
-        const nextCaseBtn = $('nextCaseBtn');
+                <div class="admin-bar">
+                    <button class="btn btn-warning" id="nextCaseBtn" style="display:none;">➡️ Volgende casus</button>
+                </div>
 
-        // ----- State -----
-        let peer = null;
-        let localStream = null;
-        let isSpeaking = false;
-        let isConnected = false;
-        let myUsername = '';
-        let myClass = '';
-        let myRole = '';
-        let myId = '';
-        let currentScenario = null;
-        let currentCaseIndex = 0;
-        const connections = new Set();
-        const dataConnections = new Map();
-        const audioConnections = new Map();
-        let peerListUnsubscribe = null;
-        let peersRef = null;
-        let microEnabled = false;
-        let isMicInitializing = false;
-        let isAdmin = false;
-        let caseUnsubscribe = null;
-        let mutatieUnsubscribe = null;
+                <button class="btn btn-danger" id="disconnectBtn" style="margin-top:10px;">🚪 Verbinding verbreken</button>
+            </div>
+        </div>
 
-        function generateId() { return 'P-' + Math.random().toString(36).substr(2, 8); }
+        <!-- TAB MUTATIE -->
+        <div id="tab-mutatie" class="tab-content">
+            <div class="container">
+                <h2>📝 Mutatieformulier</h2>
+                <p class="sub">Vul de 7 W's in op basis van de verkregen informatie.</p>
+                <div id="casusInfo" style="background:#0d1624; padding:10px; border-radius:8px; margin-bottom:12px; border-left:4px solid #f0c040;">
+                    <strong style="color:#f0c040;">Huidige casus:</strong> <span id="currentCaseName">-</span>
+                </div>
+                <div class="mutatie-form">
+                    <div class="form-group"><label><span class="w-hint">W1</span> WIE</label><textarea id="mutWie"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W2</span> WAT</label><textarea id="mutWat"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W3</span> WAAR</label><textarea id="mutWaar"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W4</span> WANNEER</label><input type="datetime-local" id="mutWanneer" /></div>
+                    <div class="form-group"><label><span class="w-hint">W5</span> WAARMEE</label><textarea id="mutWaarmee"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W6</span> WIJZE</label><textarea id="mutWijze"></textarea></div>
+                    <div class="form-group"><label><span class="w-hint">W7</span> WAAROM</label><textarea id="mutWaarom"></textarea></div>
+                    <button class="btn btn-primary" id="submitMutatieBtn">📤 Mutatie Inleveren</button>
+                    <div class="save-indicator" id="saveIndicator"></div>
+                </div>
+            </div>
+        </div>
 
-        function setStatus(state, text) {
-            const ledMap = { online: 'online', offline: 'offline', speaking: 'speaking' };
-            statusLed.className = 'status-led ' + (ledMap[state] || 'offline');
-            statusText.textContent = text || state;
-        }
+        <!-- TAB LIVEFEED -->
+        <div id="tab-feed" class="tab-content">
+            <div class="container">
+                <h2>📋 Livefeed - Klas <span id="feedKlas">-</span></h2>
+                <p class="sub">Laatste mutatie ter controle</p>
+                <div id="livefeedContainer"><div class="empty-state">⏳ Wachten op mutatie...</div></div>
+            </div>
+        </div>
 
-        function addChat(sender, text, system = false) {
-            const div = document.createElement('div');
-            div.style.marginBottom = '4px';
-            div.style.fontSize = '0.85rem';
-            if (system) {
-                div.style.color = '#8899aa';
-                div.innerHTML = `<em>${sender}:</em> ${text}`;
-            } else {
-                div.innerHTML = `<strong style="color:#f0c040;">${sender}</strong> ${text}`;
-            }
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function updateUserList() {
-            userCount.textContent = `👥 ${connections.size}`;
-            let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
-            for (let id of connections) {
-                html += `<span class="chip">📞 ${id}</span>`;
-            }
-            userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
-        }
-
-        // ----- Microfoon -----
-        async function initMicrophone() {
-            if (isMicInitializing) return;
-            isMicInitializing = true;
-            microStatus.textContent = '⏳ Microfoon wordt gestart...';
-            microStatus.className = 'micro-status';
-            retryMicBtn.classList.add('hidden');
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-                });
-                localStream.getAudioTracks().forEach(t => t.enabled = false);
-                microEnabled = true;
-                microStatus.textContent = '✅ Microfoon gereed';
-                microStatus.className = 'micro-status ok';
-                retryMicBtn.classList.add('hidden');
-                if (myRole !== 'Burger') {
-                    pttButton.disabled = false;
-                    pttButton.classList.remove('disabled');
-                } else {
-                    pttButton.disabled = true;
-                    pttButton.classList.add('disabled');
-                }
-                if (isConnected) {
-                    for (let peerId of connections) {
-                        if (!audioConnections.has(peerId)) {
-                            callPeer(peerId);
-                        }
-                    }
-                }
-                isMicInitializing = false;
-                return true;
-            } catch (err) {
-                microEnabled = false;
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    microStatus.textContent = '⚠️ Microfoontoegang geweigerd. Alleen chat beschikbaar.';
-                    microStatus.className = 'micro-status warning';
-                } else {
-                    microStatus.textContent = '❌ Geen microfoon – chat werkt wel.';
-                    microStatus.className = 'micro-status err';
-                }
-                retryMicBtn.classList.remove('hidden');
-                pttButton.disabled = true;
-                pttButton.classList.add('disabled');
-                isMicInitializing = false;
-                return false;
-            }
-        }
-
-        async function retryMicrophone() {
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
-            }
-            for (let entry of audioConnections.values()) {
-                entry.call.close();
-                entry.audio.remove();
-            }
-            audioConnections.clear();
-            await initMicrophone();
-        }
-
-        // ----- PTT -----
-        function startSpeaking() {
-            if (!isConnected || !microEnabled || isSpeaking || myRole === 'Burger') return;
-            isSpeaking = true;
-            pttButton.classList.add('active');
-            pttButton.textContent = '🔴 SPREEKT...';
-            setStatus('speaking', 'Spreekt...');
-            if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = true);
-        }
-
-        function stopSpeaking() {
-            if (!isSpeaking) return;
-            isSpeaking = false;
-            pttButton.classList.remove('active');
-            pttButton.textContent = '🎤 HOU IN';
-            setStatus('online', 'Online');
-            if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
-        }
-
-        // ----- Audio oproep -----
-        function callPeer(peerId) {
-            if (!localStream || !microEnabled) return;
-            if (audioConnections.has(peerId)) return;
-            const call = peer.call(peerId, localStream);
-            call.on('stream', (remoteStream) => {
-                const audio = document.createElement('audio');
-                audio.autoplay = true;
-                audio.srcObject = remoteStream;
-                audio.volume = 1.0;
-                audio.muted = false;
-                document.body.appendChild(audio);
-                audioConnections.set(peerId, { call, audio });
-            });
-            call.on('close', () => {
-                const entry = audioConnections.get(peerId);
-                if (entry) {
-                    entry.audio.remove();
-                    audioConnections.delete(peerId);
-                }
-            });
-        }
-
-        // ----- Data verbinding -----
-        function setupDataConnection(conn) {
-            const peerId = conn.peer;
-            if (connections.has(peerId)) {
-                conn.close();
-                return;
-            }
-
-            conn.on('open', () => {
-                connections.add(peerId);
-                dataConnections.set(peerId, conn);
-                conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
-                if (microEnabled && localStream && myRole !== 'Burger') {
-                    callPeer(peerId);
-                }
-                updateUserList();
-                addChat('🔗', `${peerId} is verbonden`, true);
-            });
-
-            conn.on('data', (data) => {
-                if (data.class && data.class !== myClass) return;
-                if (data.type === 'hello') {
-                    return;
-                }
-                if (data.type === 'chat') {
-                    addChat(`${data.sender} (${data.role})`, data.text);
-                }
-            });
-
-            conn.on('close', () => {
-                connections.delete(peerId);
-                dataConnections.delete(peerId);
-                const entry = audioConnections.get(peerId);
-                if (entry) {
-                    entry.call.close();
-                    entry.audio.remove();
-                    audioConnections.delete(peerId);
-                }
-                updateUserList();
-                addChat('🔌', `${peerId} is verbroken`, true);
-            });
-        }
-
-        // ----- Peer discovery via Firebase -----
-        function startPeerDiscovery() {
-            peersRef = ref(db, `porto_peers/${myClass}`);
-            const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
-            set(myPeerRef, {
-                username: myUsername,
-                role: myRole,
-                timestamp: serverTimestamp()
-            });
-            onDisconnect(myPeerRef).remove();
-
-            if (peerListUnsubscribe) peerListUnsubscribe();
-            peerListUnsubscribe = onValue(peersRef, (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-                const ids = Object.keys(data);
-                for (let id of ids) {
-                    if (id === myId) continue;
-                    if (!connections.has(id)) {
-                        const conn = peer.connect(id);
-                        if (conn) {
-                            setupDataConnection(conn);
-                        } else {
-                            console.warn('Kan niet verbinden met', id);
-                        }
-                    }
-                }
-            });
-        }
-
-        // ----- Roltoewijzing -----
-        function getAvailableRoles() {
-            return new Promise((resolve) => {
-                const roleRef = ref(db, `porto_peers/${myClass}`);
-                onValue(roleRef, (snapshot) => {
-                    const data = snapshot.val();
-                    const usedRoles = new Set();
-                    if (data) {
-                        for (let id of Object.keys(data)) {
-                            if (data[id].role) usedRoles.add(data[id].role);
-                        }
-                    }
-                    const allRoles = ['Burger', 'Collega1', 'Collega2', 'Meldkamer'];
-                    let available = allRoles.filter(r => !usedRoles.has(r));
-                    if (available.length === 0) available = ['Meldkamer'];
-                    resolve(available);
-                }, { onlyOnce: true });
-            });
-        }
-
-        // ----- Casus beheer -----
-        function loadCase(index) {
-            if (index >= SCENARIOS.length) {
-                currentScenario = null;
-                currentCaseName.textContent = 'Alle casussen afgerond! 🎉';
-                return;
-            }
-            currentScenario = SCENARIOS[index];
-            currentCaseName.textContent = currentScenario.naam;
-            updateRoleInfo();
-            mutWie.value = mutWat.value = mutWaar.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
-            mutWanneer.value = '';
-            saveIndicator.textContent = '';
-            if (myRole === 'Meldkamer') {
-                addChat('📢', `Nieuwe casus gestart: ${currentScenario.naam}. Begin met het uitvragen van de 7 W's.`, true);
-            } else {
-                addChat('📢', `Nieuwe casus: ${currentScenario.naam}. Bereid je voor op de simulatie.`, true);
-            }
-            const caseRef = getCaseRef();
-            set(caseRef, {
-                index: index,
-                scenarioId: currentScenario.id,
-                naam: currentScenario.naam,
-                timestamp: serverTimestamp()
-            });
-        }
-
-        function nextCase() {
-            if (!isAdmin) return;
-            currentCaseIndex++;
-            loadCase(currentCaseIndex);
-            livefeedContainer.innerHTML = '<div class="empty-state">⏳ Wachten op mutatie...</div>';
-            const mutRef = getMutatieRef();
-            remove(mutRef);
-        }
-
-        // ----- Mutatie opslaan -----
-        function submitMutatie() {
-            if (myRole !== 'Meldkamer') {
-                saveIndicator.textContent = '❌ Alleen de meldkamer kan een mutatie indienen.';
-                saveIndicator.className = 'save-indicator';
-                return;
-            }
-            const mutatie = {
-                wie: mutWie.value.trim(),
-                wat: mutWat.value.trim(),
-                waar: mutWaar.value.trim(),
-                wanneer: mutWanneer.value || 'Niet gespecificeerd',
-                waarmee: mutWaarmee.value.trim(),
-                wijze: mutWijze.value.trim(),
-                waarom: mutWaarom.value.trim(),
-                auteur: myUsername,
-                rol: myRole,
-                timestamp: serverTimestamp(),
-                klas: myClass,
-                scenario: currentScenario ? currentScenario.naam : 'Onbekend'
-            };
-            if (!mutatie.wie && !mutatie.wat && !mutatie.waar) {
-                saveIndicator.textContent = '⚠️ Vul minimaal Wie, Wat en Waar in.';
-                saveIndicator.className = 'save-indicator';
-                return;
-            }
-            saveIndicator.textContent = '⏳ Opslaan...';
-            saveIndicator.className = 'save-indicator';
-            const newRef = push(getMutatieRef());
-            set(newRef, mutatie).then(() => {
-                saveIndicator.textContent = '✅ Mutatie opgeslagen!';
-                saveIndicator.className = 'save-indicator saved';
-            }).catch(err => {
-                saveIndicator.textContent = '❌ Fout: ' + err.message;
-                saveIndicator.className = 'save-indicator';
-            });
-        }
-
-        // ----- Livefeed -----
-        function loadLivefeed() {
-            const mutRef = getMutatieRef();
-            if (mutatieUnsubscribe) mutatieUnsubscribe();
-            mutatieUnsubscribe = onValue(mutRef, (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    livefeedContainer.innerHTML = '<div class="empty-state">📝 Nog geen mutatie ingediend.</div>';
-                    return;
-                }
-                const entries = Object.entries(data);
-                const last = entries.reduce((a, b) => (a[1].timestamp > b[1].timestamp ? a : b));
-                const mut = last[1];
-                const fields = [
-                    { key: 'wie', label: 'W1 - WIE' },
-                    { key: 'wat', label: 'W2 - WAT' },
-                    { key: 'waar', label: 'W3 - WAAR' },
-                    { key: 'wanneer', label: 'W4 - WANNEER' },
-                    { key: 'waarmee', label: 'W5 - WAARMEE' },
-                    { key: 'wijze', label: 'W6 - WIJZE' },
-                    { key: 'waarom', label: 'W7 - WAAROM' }
-                ];
-                let complete = true;
-                let checklistHtml = '';
-                for (let f of fields) {
-                    const val = mut[f.key] || '';
-                    const filled = val.trim().length > 0 && val !== 'Niet gespecificeerd';
-                    if (!filled) complete = false;
-                    checklistHtml += `<span class="item ${filled ? 'ok' : 'miss'}">${f.label} ${filled ? '✅' : '❌'}</span>`;
-                }
-                const tijd = mut.timestamp ? new Date(mut.timestamp).toLocaleString('nl-NL') : 'Onbekend';
-                livefeedContainer.innerHTML = `
-                    <div class="livefeed-item">
-                        <div class="header">
-                            <span class="auteur">📝 ${mut.auteur || '?'} (${mut.rol || '?'})</span>
-                            <span>${tijd}</span>
-                        </div>
-                        <div class="fields">
-                            ${fields.map(f => `<div><strong>${f.label}:</strong> ${mut[f.key] || '-'}</div>`).join('')}
-                        </div>
-                        <div class="checklist">${checklistHtml}</div>
-                        <div class="status ${complete ? 'status-complete' : 'status-incomplete'}">
-                            ${complete ? '✅ Alle 7 W\'s zijn ingevuld!' : '⚠️ Niet alle W\'s zijn ingevuld.'}
-                        </div>
+        <!-- TAB INFO -->
+        <div id="tab-info" class="tab-content">
+            <div class="container">
+                <h2>📋 Rol informatie</h2>
+                <div id="rolInfoContainer">
+                    <div class="rolinfo">
+                        <span class="label">Jouw rol:</span>
+                        <div class="content" id="myRoleInfo">-</div>
                     </div>
-                `;
-            });
-        }
+                    <div id="otherRolesInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // ----- Rolinfo weergeven -----
-        function updateRoleInfo() {
-            if (!currentScenario) {
-                myRoleInfo.textContent = 'Geen actieve casus.';
-                otherRolesInfo.innerHTML = '';
-                return;
-            }
-            const roles = currentScenario.rollen;
-            const myInfo = roles[myRole] ? roles[myRole].info : 'Geen informatie voor deze rol.';
-            myRoleInfo.textContent = myInfo;
-
-            let otherHtml = '';
-            for (let [rol, data] of Object.entries(roles)) {
-                if (rol === myRole) continue;
-                otherHtml += `<div class="rolinfo"><span class="label">${rol}:</span><div class="content">[informatie alleen zichtbaar voor ${rol}]</div></div>`;
-            }
-            otherRolesInfo.innerHTML = otherHtml || '<div class="rolinfo">Geen andere rollen.</div>';
-        }
-
-        // ----- Hoofdfunctie -----
-        async function connectToRoom() {
-            const username = usernameInput.value.trim();
-            const klas = classSelect.value;
-            if (!username) {
-                loginError.textContent = 'Vul je naam in.';
-                return;
-            }
-            if (klas === 'INDIE') {
-                loginError.textContent = 'Kies een geldige klas.';
-                return;
-            }
-
-            myUsername = username;
-            myClass = klas;
-            myId = generateId();
-
-            const available = await getAvailableRoles();
-            myRole = available[0] || 'Meldkamer';
-            isAdmin = (myRole === 'Meldkamer');
-
-            displayName.textContent = myUsername;
-            roleDisplay.textContent = myRole;
-            if (myRole === 'Burger') {
-                roleDisplay.style.background = '#6c757d';
-            } else if (myRole === 'Meldkamer') {
-                roleDisplay.style.background = '#f0c040';
-                roleDisplay.style.color = '#1a2332';
-            } else {
-                roleDisplay.style.background = '#28a745';
-            }
-
-            loginScreen.classList.add('hidden');
-            mainScreen.classList.remove('hidden');
-
-            const mutatieTab = document.querySelector('[data-tab="tab-mutatie"]');
-            if (myRole === 'Meldkamer') {
-                mutatieTab.style.display = 'block';
-                nextCaseBtn.style.display = 'block';
-            } else {
-                mutatieTab.style.display = 'none';
-                nextCaseBtn.style.display = 'none';
-            }
-
-            feedKlas.textContent = myClass;
-            loadLivefeed();
-
-            const caseRef = getCaseRef();
-            if (caseUnsubscribe) caseUnsubscribe();
-            caseUnsubscribe = onValue(caseRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data && data.index !== undefined) {
-                    currentCaseIndex = data.index;
-                    const scenario = SCENARIOS[currentCaseIndex];
-                    if (scenario) {
-                        currentScenario = scenario;
-                        currentCaseName.textContent = scenario.naam;
-                        updateRoleInfo();
-                    } else {
-                        currentScenario = null;
-                        currentCaseName.textContent = 'Alle casussen afgerond! 🎉';
-                    }
-                } else {
-                    currentCaseIndex = 0;
-                    loadCase(0);
-                }
-            });
-
-            if (isAdmin) {
-                nextCaseBtn.onclick = nextCase;
-            }
-
-            setStatus('connecting', 'Verbinden...');
-
-            peer = new Peer(myId);
-            peer.on('open', () => {
-                isConnected = true;
-                setStatus('online', 'Online');
-                chatInput.disabled = false;
-                chatSendBtn.disabled = false;
-                addChat('📡', 'Je bent verbonden met de porto!', true);
-                startPeerDiscovery();
-                initMicrophone();
-            });
-
-            peer.on('connection', (conn) => {
-                if (conn.peer !== myId) {
-                    setupDataConnection(conn);
-                } else {
-                    conn.close();
-                }
-            });
-
-            peer.on('call', (call) => {
-                if (!localStream || !microEnabled) { call.answer(); return; }
-                call.answer(localStream);
-                call.on('stream', (remoteStream) => {
-                    const audio = document.createElement('audio');
-                    audio.autoplay = true;
-                    audio.srcObject = remoteStream;
-                    audio.volume = 1.0;
-                    audio.muted = false;
-                    document.body.appendChild(audio);
-                    audioConnections.set(call.peer, { call, audio });
-                });
-                call.on('close', () => {
-                    const entry = audioConnections.get(call.peer);
-                    if (entry) {
-                        entry.audio.remove();
-                        audioConnections.delete(call.peer);
-                    }
-                });
-            });
-
-            peer.on('error', (err) => {
-                console.error(err);
-                if (err.type === 'unavailable-id') {
-                    myId = generateId();
-                    connectToRoom();
-                } else {
-                    addChat('❌ Fout', err.message, true);
-                }
-            });
-
-            peer.on('disconnected', () => {
-                addChat('⚠️', 'Verbinding verbroken, opnieuw verbinden...', true);
-                setTimeout(() => {
-                    if (peer) peer.destroy();
-                    if (isConnected) connectToRoom();
-                }, 2000);
-            });
-        }
-
-        // ----- Event listeners -----
-        connectBtn.addEventListener('click', connectToRoom);
-
-        pttButton.addEventListener('mousedown', startSpeaking);
-        pttButton.addEventListener('mouseup', stopSpeaking);
-        pttButton.addEventListener('mouseleave', stopSpeaking);
-        pttButton.addEventListener('touchstart', (e) => { e.preventDefault(); startSpeaking(); });
-        pttButton.addEventListener('touchend', (e) => { e.preventDefault(); stopSpeaking(); });
-
-        chatSendBtn.addEventListener('click', () => {
-            const text = chatInput.value.trim();
-            if (!text) return;
-            const data = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text };
-            for (let conn of dataConnections.values()) {
-                try { conn.send(data); } catch(e) {}
-            }
-            addChat(`📤 ${myUsername} (${myRole})`, text);
-            chatInput.value = '';
-        });
-        chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') chatSendBtn.click(); });
-
-        retryMicBtn.addEventListener('click', retryMicrophone);
-
-        submitMutatieBtn.addEventListener('click', submitMutatie);
-
-        disconnectBtn.addEventListener('click', () => {
-            if (peer) peer.destroy();
-            connections.clear();
-            dataConnections.clear();
-            for (let entry of audioConnections.values()) {
-                entry.call.close();
-                entry.audio.remove();
-            }
-            audioConnections.clear();
-            isConnected = false;
-            if (peerListUnsubscribe) peerListUnsubscribe();
-            if (peersRef) {
-                const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
-                remove(myPeerRef);
-            }
-            if (caseUnsubscribe) caseUnsubscribe();
-            if (mutatieUnsubscribe) mutatieUnsubscribe();
-            loginScreen.classList.remove('hidden');
-            mainScreen.classList.add('hidden');
-            setStatus('offline', 'Offline');
-            chatInput.disabled = true;
-            chatSendBtn.disabled = true;
-            pttButton.disabled = true;
-            pttButton.classList.remove('active');
-            pttButton.classList.add('disabled');
-            pttButton.textContent = '🎤 HOU IN';
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
-            }
-            microEnabled = false;
-            microStatus.textContent = '⏳ Microfoon gestopt';
-            microStatus.className = 'micro-status';
-            retryMicBtn.classList.add('hidden');
-        });
-
-        // Tab switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
-
-        // Start
-        loginScreen.classList.remove('hidden');
-        mainScreen.classList.add('hidden');
-    </script>
-    <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -1203,40 +442,697 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ----- DOM refs -----
+    // ----- 5 SCENARIO'S (identiek) -----
+    const SCENARIOS = [
+        {
+            id: 'scenario1',
+            naam: "Winkeldiefstal",
+            rollen: {
+                Burger: { info: "Je bent getuige van een winkeldiefstal...\nJe zag een man een fles whisky in zijn jas stoppen en weglopen.\nJe hebt de man niet eerder gezien.\nHet was rond 14:30 uur.\nDe man droeg een donkere jas en een pet." },
+                Collega1: { info: "Je bent de eerste agent ter plaatse.\nDe supermarktmanager geeft aan dat er een fles whisky gestolen is (ter waarde van € 40).\nDe verdachte is weggerend richting het station.\nSignalement: man, 40-45 jaar, 1.80 m, donkere jas, blauwe pet, spijkerbroek." },
+                Collega2: { info: "Je bent de tweede agent.\nJe hebt een getuige gesproken die de verdachte zag wegrennen.\nHij stapte in een zwarte auto, kenteken onbekend.\nDe getuige dacht dat de man een tatoeage op zijn nek had." },
+                Meldkamer: { info: "Je bent de meldkamer. Je hebt nog geen informatie. Stel vragen aan collega's om de 7 W's te achterhalen." }
+            }
+        },
+        {
+            id: 'scenario2',
+            naam: "Verkeersongeval",
+            rollen: {
+                Burger: { info: "Je bent een omstander die een aanrijding zag tussen een personenauto en een fietser.\nHet gebeurde op de kruising van de Kerkstraat en de Molenweg.\nJe hoorde een harde knal en zag de fietser over de grond rollen.\nDe fietser was een oudere man, ongeveer 70 jaar." },
+                Collega1: { info: "Je bent de eerste agent ter plaatse.\nDe fietser is gewond aan zijn been en is naar het ziekenhuis gebracht.\nDe automobilist is een vrouw van middelbare leeftijd.\nZe verklaarde dat ze de fietser niet had gezien door de laagstaande zon." },
+                Collega2: { info: "Je bent de tweede agent.\nJe hebt de schade opgenomen: de fiets is total loss, de auto heeft een deuk in de motorkap.\nEr waren geen andere getuigen, behalve de omstander die jullie hebben gesproken." },
+                Meldkamer: { info: "Je bent de meldkamer. Je hebt nog geen informatie. Stel vragen." }
+            }
+        },
+        {
+            id: 'scenario3',
+            naam: "Geluidsoverlast",
+            rollen: {
+                Burger: { info: "Je bent een buurtbewoner die al weken last heeft van harde muziek uit het pand ernaast.\nHet is vooral 's avonds en 's nachts erg.\nJe hebt de politie al meerdere keren gebeld, maar er verandert niets.\nVannacht was het weer zo erg, je kon niet slapen." },
+                Collega1: { info: "Je bent de wijkagent.\nJe hebt al meerdere meldingen van geluidsoverlast op dit adres.\nDe bewoner is een jonge man die vaak feestjes geeft.\nEr is al een officiële waarschuwing gegeven." },
+                Collega2: { info: "Je bent de collega die ter plaatse gaat.\nJe hoort al van buiten de harde bas.\nDe bewoner doet open en lijkt onder invloed van alcohol.\nHij weigert de muziek zachter te zetten." },
+                Meldkamer: { info: "Je bent de meldkamer. Je hebt nog geen informatie." }
+            }
+        },
+        {
+            id: 'scenario4',
+            naam: "Huiselijk geweld",
+            rollen: {
+                Burger: { info: "Je bent de buurman die schreeuwende stemmen hoorde en een klap.\nJe keek uit het raam en zag een man en vrouw ruzie maken op de stoep.\nDe man duwde de vrouw hard tegen de muur.\nJe hebt de politie gebeld." },
+                Collega1: { info: "Je bent de eerste agent ter plaatse.\nDe vrouw heeft een blauw oog en is erg overstuur.\nDe man is weggegaan voor jullie aankwamen.\nDe vrouw wil geen aangifte doen, ze is bang." },
+                Collega2: { info: "Je bent de tweede agent.\nJe hebt een buurvrouw gesproken die zegt dat dit vaker gebeurt.\nZe vertelt dat de man vaak agressief is en dat de vrouw regelmatig blauwe plekken heeft.\nZe hoopt dat jullie er wat aan doen." },
+                Meldkamer: { info: "Je bent de meldkamer. Je hebt nog geen informatie." }
+            }
+        },
+        {
+            id: 'scenario5',
+            naam: "Diefstal uit auto",
+            rollen: {
+                Burger: { info: "Je bent de eigenaar van de auto.\nJe hebt je auto geparkeerd voor de supermarkt.\nToen je terugkwam, zag je dat het zijraam was ingeslagen.\nEr is een tas met een laptop en portemonnee uit de auto gestolen.\nJe hebt de politie gebeld." },
+                Collega1: { info: "Je bent de eerste agent ter plaatse.\nJe hebt de schade opgenomen en een buurtonderzoek gedaan.\nEen getuige zegt een man te hebben zien wegrennen met een tas.\nSignalement: jongeman, 20-25 jaar, donkere kleding, pet." },
+                Collega2: { info: "Je bent de tweede agent.\nJe hebt camerabeelden opgevraagd van de supermarkt.\nOp de beelden is te zien dat de dader een zwarte jas droeg en een rugzak bij zich had.\nHij rende weg in de richting van het park." },
+                Meldkamer: { info: "Je bent de meldkamer. Je hebt nog geen informatie." }
+            }
+        }
+    ];
+
+    // ----- HULPFUNCTIES -----
+    function getCaseRef() { return ref(db, `cases/${myClass}`); }
+    function getMutatieRef() { return ref(db, `mutaties/${myClass}`); }
+
+    // ----- DOM REFS -----
     const $ = id => document.getElementById(id);
-    const connectBtn = $('connectBtn');
-    const loginError = $('loginError');
     const loginScreen = $('loginScreen');
     const mainScreen = $('mainScreen');
+    const usernameInput = $('usernameInput');
+    const classSelect = $('classSelect');
+    const connectBtn = $('connectBtn');
+    const loginError = $('loginError');
+    const displayName = $('displayName');
+    const roleDisplay = $('roleDisplay');
+    const statusLed = $('statusLed');
+    const statusText = $('statusText');
+    const userCount = $('userCount');
+    const userList = $('userList');
+    const microStatus = $('microStatus');
+    const retryMicBtn = $('retryMicBtn');
+    const pttButton = $('pttButton');
+    const chatMessages = $('chatMessages');
+    const chatInput = $('chatInput');
+    const chatSendBtn = $('chatSendBtn');
+    const disconnectBtn = $('disconnectBtn');
+    const mutWie = $('mutWie');
+    const mutWat = $('mutWat');
+    const mutWaar = $('mutWaar');
+    const mutWanneer = $('mutWanneer');
+    const mutWaarmee = $('mutWaarmee');
+    const mutWijze = $('mutWijze');
+    const mutWaarom = $('mutWaarom');
+    const submitMutatieBtn = $('submitMutatieBtn');
+    const saveIndicator = $('saveIndicator');
+    const myRoleInfo = $('myRoleInfo');
+    const otherRolesInfo = $('otherRolesInfo');
+    const livefeedContainer = $('livefeedContainer');
+    const feedKlas = $('feedKlas');
+    const currentCaseName = $('currentCaseName');
+    const nextCaseBtn = $('nextCaseBtn');
 
-    // ----- Vereenvoudigde connect functie (zonder roltoewijzing) -----
+    // ----- STATE -----
+    let peer = null;
+    let localStream = null;
+    let isSpeaking = false;
+    let isConnected = false;
+    let myUsername = '';
+    let myClass = '';
+    let myRole = '';
+    let myId = '';
+    let currentScenario = null;
+    let currentCaseIndex = 0;
+    const connections = new Set();
+    const dataConnections = new Map();
+    const audioConnections = new Map();
+    let peerListUnsubscribe = null;
+    let peersRef = null;
+    let microEnabled = false;
+    let isMicInitializing = false;
+    let isAdmin = false;
+    let caseUnsubscribe = null;
+    let mutatieUnsubscribe = null;
+
+    function generateId() { return 'P-' + Math.random().toString(36).substr(2, 8); }
+
+    function setStatus(state, text) {
+        const ledMap = { online: 'online', offline: 'offline', speaking: 'speaking' };
+        statusLed.className = 'status-led ' + (ledMap[state] || 'offline');
+        statusText.textContent = text || state;
+    }
+
+    function addChat(sender, text, system = false) {
+        const div = document.createElement('div');
+        div.style.marginBottom = '4px';
+        div.style.fontSize = '0.85rem';
+        if (system) {
+            div.style.color = '#8899aa';
+            div.innerHTML = `<em>${sender}:</em> ${text}`;
+        } else {
+            div.innerHTML = `<strong style="color:#f0c040;">${sender}</strong> ${text}`;
+        }
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function updateUserList() {
+        userCount.textContent = `👥 ${connections.size}`;
+        let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
+        for (let id of connections) {
+            html += `<span class="chip">📞 ${id}</span>`;
+        }
+        userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
+    }
+
+    // ----- MICROFOON (identiek aan de werkende porto) -----
+    async function initMicrophone() {
+        if (isMicInitializing) return;
+        isMicInitializing = true;
+        microStatus.textContent = '⏳ Microfoon wordt gestart...';
+        microStatus.className = 'micro-status';
+        retryMicBtn.classList.add('hidden');
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+            });
+            localStream.getAudioTracks().forEach(t => t.enabled = false);
+            microEnabled = true;
+            microStatus.textContent = '✅ Microfoon gereed';
+            microStatus.className = 'micro-status ok';
+            retryMicBtn.classList.add('hidden');
+            pttButton.disabled = false;
+            pttButton.classList.remove('disabled');
+            if (isConnected) {
+                for (let peerId of connections) {
+                    if (!audioConnections.has(peerId)) {
+                        callPeer(peerId);
+                    }
+                }
+            }
+            isMicInitializing = false;
+            return true;
+        } catch (err) {
+            microEnabled = false;
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                microStatus.textContent = '⚠️ Microfoontoegang geweigerd. Alleen chat beschikbaar.';
+                microStatus.className = 'micro-status warning';
+            } else {
+                microStatus.textContent = '❌ Geen microfoon – chat werkt wel.';
+                microStatus.className = 'micro-status err';
+            }
+            retryMicBtn.classList.remove('hidden');
+            pttButton.disabled = true;
+            pttButton.classList.add('disabled');
+            isMicInitializing = false;
+            return false;
+        }
+    }
+
+    async function retryMicrophone() {
+        if (localStream) {
+            localStream.getTracks().forEach(t => t.stop());
+            localStream = null;
+        }
+        for (let entry of audioConnections.values()) {
+            entry.call.close();
+            entry.audio.remove();
+        }
+        audioConnections.clear();
+        await initMicrophone();
+    }
+
+    // ----- PTT -----
+    function startSpeaking() {
+        if (!isConnected || !microEnabled || isSpeaking || myRole === 'Burger') return;
+        isSpeaking = true;
+        pttButton.classList.add('active');
+        pttButton.textContent = '🔴 SPREEKT...';
+        setStatus('speaking', 'Spreekt...');
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = true);
+    }
+
+    function stopSpeaking() {
+        if (!isSpeaking) return;
+        isSpeaking = false;
+        pttButton.classList.remove('active');
+        pttButton.textContent = '🎤 HOU IN';
+        setStatus('online', 'Online');
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
+    }
+
+    // ----- AUDIO OPROEP -----
+    function callPeer(peerId) {
+        if (!localStream || !microEnabled) return;
+        if (audioConnections.has(peerId)) return;
+        const call = peer.call(peerId, localStream);
+        call.on('stream', (remoteStream) => {
+            const audio = document.createElement('audio');
+            audio.autoplay = true;
+            audio.srcObject = remoteStream;
+            audio.volume = 1.0;
+            audio.muted = false;
+            document.body.appendChild(audio);
+            audioConnections.set(peerId, { call, audio });
+        });
+        call.on('close', () => {
+            const entry = audioConnections.get(peerId);
+            if (entry) {
+                entry.audio.remove();
+                audioConnections.delete(peerId);
+            }
+        });
+    }
+
+    // ----- DATA VERBINDING -----
+    function setupDataConnection(conn) {
+        const peerId = conn.peer;
+        if (connections.has(peerId)) {
+            conn.close();
+            return;
+        }
+
+        conn.on('open', () => {
+            connections.add(peerId);
+            dataConnections.set(peerId, conn);
+            conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
+            if (microEnabled && localStream && myRole !== 'Burger') {
+                callPeer(peerId);
+            }
+            updateUserList();
+            addChat('🔗', `${peerId} is verbonden`, true);
+        });
+
+        conn.on('data', (data) => {
+            if (data.class && data.class !== myClass) return;
+            if (data.type === 'hello') {
+                return;
+            }
+            if (data.type === 'chat') {
+                addChat(`${data.sender} (${data.role})`, data.text);
+            }
+        });
+
+        conn.on('close', () => {
+            connections.delete(peerId);
+            dataConnections.delete(peerId);
+            const entry = audioConnections.get(peerId);
+            if (entry) {
+                entry.call.close();
+                entry.audio.remove();
+                audioConnections.delete(peerId);
+            }
+            updateUserList();
+            addChat('🔌', `${peerId} is verbroken`, true);
+        });
+    }
+
+    // ----- PEER DISCOVERY (Firebase) -----
+    function startPeerDiscovery() {
+        peersRef = ref(db, `porto_peers/${myClass}`);
+        const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
+        set(myPeerRef, {
+            username: myUsername,
+            role: myRole,
+            timestamp: serverTimestamp()
+        });
+        onDisconnect(myPeerRef).remove();
+
+        if (peerListUnsubscribe) peerListUnsubscribe();
+        peerListUnsubscribe = onValue(peersRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            const ids = Object.keys(data);
+            for (let id of ids) {
+                if (id === myId) continue;
+                if (!connections.has(id)) {
+                    const conn = peer.connect(id);
+                    if (conn) {
+                        setupDataConnection(conn);
+                    } else {
+                        console.warn('Kan niet verbinden met', id);
+                    }
+                }
+            }
+        });
+    }
+
+    // ----- NIEUWE ROLTOEWIJZING (eerste 3 = Burger, Collega1, Collega2; rest = Meldkamer) -----
+    async function assignRole() {
+        // Lees het huidige aantal gebruikers in deze klas
+        const peersRef = ref(db, `porto_peers/${myClass}`);
+        const snapshot = await new Promise(resolve => onValue(peersRef, resolve, { onlyOnce: true }));
+        const data = snapshot.val();
+        const count = data ? Object.keys(data).length : 0;
+
+        let role;
+        if (count === 0) role = 'Burger';
+        else if (count === 1) role = 'Collega1';
+        else if (count === 2) role = 'Collega2';
+        else role = 'Meldkamer';
+
+        // Bepaal admin: de eerste Meldkamer (dus count === 3) wordt admin
+        const isAdmin = (count === 3); // de vierde gebruiker (eerste Meldkamer) krijgt admin
+
+        return { role, isAdmin };
+    }
+
+    // ----- CASUS BEHEER -----
+    function loadCase(index) {
+        if (index >= SCENARIOS.length) {
+            currentScenario = null;
+            currentCaseName.textContent = 'Alle casussen afgerond! 🎉';
+            return;
+        }
+        currentScenario = SCENARIOS[index];
+        currentCaseName.textContent = currentScenario.naam;
+        updateRoleInfo();
+        mutWie.value = mutWat.value = mutWaar.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
+        mutWanneer.value = '';
+        saveIndicator.textContent = '';
+        if (myRole === 'Meldkamer') {
+            addChat('📢', `Nieuwe casus gestart: ${currentScenario.naam}. Begin met het uitvragen van de 7 W's.`, true);
+        } else {
+            addChat('📢', `Nieuwe casus: ${currentScenario.naam}. Bereid je voor op de simulatie.`, true);
+        }
+        const caseRef = getCaseRef();
+        set(caseRef, {
+            index: index,
+            scenarioId: currentScenario.id,
+            naam: currentScenario.naam,
+            timestamp: serverTimestamp()
+        });
+    }
+
+    function nextCase() {
+        if (!isAdmin) return;
+        currentCaseIndex++;
+        loadCase(currentCaseIndex);
+        livefeedContainer.innerHTML = '<div class="empty-state">⏳ Wachten op mutatie...</div>';
+        const mutRef = getMutatieRef();
+        remove(mutRef);
+    }
+
+    // ----- MUTATIE OPSLAAN -----
+    function submitMutatie() {
+        if (myRole !== 'Meldkamer') {
+            saveIndicator.textContent = '❌ Alleen de meldkamer kan een mutatie indienen.';
+            saveIndicator.className = 'save-indicator';
+            return;
+        }
+        const mutatie = {
+            wie: mutWie.value.trim(),
+            wat: mutWat.value.trim(),
+            waar: mutWaar.value.trim(),
+            wanneer: mutWanneer.value || 'Niet gespecificeerd',
+            waarmee: mutWaarmee.value.trim(),
+            wijze: mutWijze.value.trim(),
+            waarom: mutWaarom.value.trim(),
+            auteur: myUsername,
+            rol: myRole,
+            timestamp: serverTimestamp(),
+            klas: myClass,
+            scenario: currentScenario ? currentScenario.naam : 'Onbekend'
+        };
+        if (!mutatie.wie && !mutatie.wat && !mutatie.waar) {
+            saveIndicator.textContent = '⚠️ Vul minimaal Wie, Wat en Waar in.';
+            saveIndicator.className = 'save-indicator';
+            return;
+        }
+        saveIndicator.textContent = '⏳ Opslaan...';
+        saveIndicator.className = 'save-indicator';
+        const newRef = push(getMutatieRef());
+        set(newRef, mutatie).then(() => {
+            saveIndicator.textContent = '✅ Mutatie opgeslagen!';
+            saveIndicator.className = 'save-indicator saved';
+        }).catch(err => {
+            saveIndicator.textContent = '❌ Fout: ' + err.message;
+            saveIndicator.className = 'save-indicator';
+        });
+    }
+
+    // ----- LIVEFEED -----
+    function loadLivefeed() {
+        const mutRef = getMutatieRef();
+        if (mutatieUnsubscribe) mutatieUnsubscribe();
+        mutatieUnsubscribe = onValue(mutRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                livefeedContainer.innerHTML = '<div class="empty-state">📝 Nog geen mutatie ingediend.</div>';
+                return;
+            }
+            const entries = Object.entries(data);
+            const last = entries.reduce((a, b) => (a[1].timestamp > b[1].timestamp ? a : b));
+            const mut = last[1];
+            const fields = [
+                { key: 'wie', label: 'W1 - WIE' },
+                { key: 'wat', label: 'W2 - WAT' },
+                { key: 'waar', label: 'W3 - WAAR' },
+                { key: 'wanneer', label: 'W4 - WANNEER' },
+                { key: 'waarmee', label: 'W5 - WAARMEE' },
+                { key: 'wijze', label: 'W6 - WIJZE' },
+                { key: 'waarom', label: 'W7 - WAAROM' }
+            ];
+            let complete = true;
+            let checklistHtml = '';
+            for (let f of fields) {
+                const val = mut[f.key] || '';
+                const filled = val.trim().length > 0 && val !== 'Niet gespecificeerd';
+                if (!filled) complete = false;
+                checklistHtml += `<span class="item ${filled ? 'ok' : 'miss'}">${f.label} ${filled ? '✅' : '❌'}</span>`;
+            }
+            const tijd = mut.timestamp ? new Date(mut.timestamp).toLocaleString('nl-NL') : 'Onbekend';
+            livefeedContainer.innerHTML = `
+                <div class="livefeed-item">
+                    <div class="header">
+                        <span class="auteur">📝 ${mut.auteur || '?'} (${mut.rol || '?'})</span>
+                        <span>${tijd}</span>
+                    </div>
+                    <div class="fields">
+                        ${fields.map(f => `<div><strong>${f.label}:</strong> ${mut[f.key] || '-'}</div>`).join('')}
+                    </div>
+                    <div class="checklist">${checklistHtml}</div>
+                    <div class="status ${complete ? 'status-complete' : 'status-incomplete'}">
+                        ${complete ? '✅ Alle 7 W\'s zijn ingevuld!' : '⚠️ Niet alle W\'s zijn ingevuld.'}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // ----- ROLINFO WEERGEVEN -----
+    function updateRoleInfo() {
+        if (!currentScenario) {
+            myRoleInfo.textContent = 'Geen actieve casus.';
+            otherRolesInfo.innerHTML = '';
+            return;
+        }
+        const roles = currentScenario.rollen;
+        const myInfo = roles[myRole] ? roles[myRole].info : 'Geen informatie voor deze rol.';
+        myRoleInfo.textContent = myInfo;
+
+        let otherHtml = '';
+        for (let [rol, data] of Object.entries(roles)) {
+            if (rol === myRole) continue;
+            otherHtml += `<div class="rolinfo"><span class="label">${rol}:</span><div class="content">[informatie alleen zichtbaar voor ${rol}]</div></div>`;
+        }
+        otherRolesInfo.innerHTML = otherHtml || '<div class="rolinfo">Geen andere rollen.</div>';
+    }
+
+    // ----- HOOFDFUNCTIE (verbinden) -----
     async function connectToRoom() {
-        const username = document.getElementById('usernameInput').value.trim();
-        const klas = document.getElementById('classSelect').value;
+        const username = usernameInput.value.trim();
+        const klas = classSelect.value;
         if (!username) {
             loginError.textContent = 'Vul je naam in.';
             return;
         }
-        // Kies een vaste rol voor test (later pas echte toewijzing)
-        const myRole = 'Meldkamer'; // of 'Burger', 'Collega1', 'Collega2'
-        const myId = 'P-' + Math.random().toString(36).substr(2, 8);
-        const myClass = klas;
+        if (klas === 'INDIE') {
+            loginError.textContent = 'Kies een geldige klas.';
+            return;
+        }
 
-        // Verberg login, toon hoofdscherm
+        myUsername = username;
+        myClass = klas;
+        myId = generateId();
+
+        // Rol toewijzen op basis van het aantal huidige gebruikers
+        const { role, isAdmin: admin } = await assignRole();
+        myRole = role;
+        isAdmin = admin;
+
+        displayName.textContent = myUsername;
+        roleDisplay.textContent = myRole;
+        if (myRole === 'Burger') {
+            roleDisplay.style.background = '#6c757d';
+        } else if (myRole === 'Meldkamer') {
+            roleDisplay.style.background = '#f0c040';
+            roleDisplay.style.color = '#1a2332';
+        } else {
+            roleDisplay.style.background = '#28a745';
+        }
+
         loginScreen.classList.add('hidden');
         mainScreen.classList.remove('hidden');
 
-        // Toon de gekozen rol (alleen voor test)
-        document.getElementById('roleDisplay').textContent = myRole;
-        document.getElementById('displayName').textContent = username;
+        // Mutatie-tab alleen voor Meldkamer
+        const mutatieTab = document.querySelector('[data-tab="tab-mutatie"]');
+        if (myRole === 'Meldkamer') {
+            mutatieTab.style.display = 'block';
+        } else {
+            mutatieTab.style.display = 'none';
+        }
 
-        // Hier zou de echte PeerJS-code komen, maar eerst testen we of de knop reageert.
-        alert('Verbinden gelukt! (test)');
+        // Admin krijgt de "Volgende casus" knop
+        if (isAdmin) {
+            nextCaseBtn.style.display = 'block';
+            nextCaseBtn.onclick = nextCase;
+        } else {
+            nextCaseBtn.style.display = 'none';
+        }
+
+        feedKlas.textContent = myClass;
+        loadLivefeed();
+
+        // Luister naar actieve casus in Firebase
+        const caseRef = getCaseRef();
+        if (caseUnsubscribe) caseUnsubscribe();
+        caseUnsubscribe = onValue(caseRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.index !== undefined) {
+                currentCaseIndex = data.index;
+                const scenario = SCENARIOS[currentCaseIndex];
+                if (scenario) {
+                    currentScenario = scenario;
+                    currentCaseName.textContent = scenario.naam;
+                    updateRoleInfo();
+                } else {
+                    currentScenario = null;
+                    currentCaseName.textContent = 'Alle casussen afgerond! 🎉';
+                }
+            } else {
+                currentCaseIndex = 0;
+                loadCase(0);
+            }
+        });
+
+        setStatus('connecting', 'Verbinden...');
+
+        // PeerJS opzetten
+        peer = new Peer(myId);
+        peer.on('open', () => {
+            isConnected = true;
+            setStatus('online', 'Online');
+            chatInput.disabled = false;
+            chatSendBtn.disabled = false;
+            addChat('📡', 'Je bent verbonden met de porto!', true);
+            startPeerDiscovery();
+            initMicrophone();
+        });
+
+        peer.on('connection', (conn) => {
+            if (conn.peer !== myId) {
+                setupDataConnection(conn);
+            } else {
+                conn.close();
+            }
+        });
+
+        peer.on('call', (call) => {
+            if (!localStream || !microEnabled) { call.answer(); return; }
+            call.answer(localStream);
+            call.on('stream', (remoteStream) => {
+                const audio = document.createElement('audio');
+                audio.autoplay = true;
+                audio.srcObject = remoteStream;
+                audio.volume = 1.0;
+                audio.muted = false;
+                document.body.appendChild(audio);
+                audioConnections.set(call.peer, { call, audio });
+            });
+            call.on('close', () => {
+                const entry = audioConnections.get(call.peer);
+                if (entry) {
+                    entry.audio.remove();
+                    audioConnections.delete(call.peer);
+                }
+            });
+        });
+
+        peer.on('error', (err) => {
+            console.error(err);
+            if (err.type === 'unavailable-id') {
+                myId = generateId();
+                connectToRoom();
+            } else {
+                addChat('❌ Fout', err.message, true);
+            }
+        });
+
+        peer.on('disconnected', () => {
+            addChat('⚠️', 'Verbinding verbroken, opnieuw verbinden...', true);
+            setTimeout(() => {
+                if (peer) peer.destroy();
+                if (isConnected) connectToRoom();
+            }, 2000);
+        });
     }
 
-    // Event listener
+    // ----- EVENT LISTENERS -----
     connectBtn.addEventListener('click', connectToRoom);
+
+    pttButton.addEventListener('mousedown', startSpeaking);
+    pttButton.addEventListener('mouseup', stopSpeaking);
+    pttButton.addEventListener('mouseleave', stopSpeaking);
+    pttButton.addEventListener('touchstart', (e) => { e.preventDefault(); startSpeaking(); });
+    pttButton.addEventListener('touchend', (e) => { e.preventDefault(); stopSpeaking(); });
+
+    chatSendBtn.addEventListener('click', () => {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        const data = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text };
+        for (let conn of dataConnections.values()) {
+            try { conn.send(data); } catch(e) {}
+        }
+        addChat(`📤 ${myUsername} (${myRole})`, text);
+        chatInput.value = '';
+    });
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') chatSendBtn.click(); });
+
+    retryMicBtn.addEventListener('click', retryMicrophone);
+
+    submitMutatieBtn.addEventListener('click', submitMutatie);
+
+    disconnectBtn.addEventListener('click', () => {
+        if (peer) peer.destroy();
+        connections.clear();
+        dataConnections.clear();
+        for (let entry of audioConnections.values()) {
+            entry.call.close();
+            entry.audio.remove();
+        }
+        audioConnections.clear();
+        isConnected = false;
+        if (peerListUnsubscribe) peerListUnsubscribe();
+        if (peersRef) {
+            const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
+            remove(myPeerRef);
+        }
+        if (caseUnsubscribe) caseUnsubscribe();
+        if (mutatieUnsubscribe) mutatieUnsubscribe();
+        loginScreen.classList.remove('hidden');
+        mainScreen.classList.add('hidden');
+        setStatus('offline', 'Offline');
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        pttButton.disabled = true;
+        pttButton.classList.remove('active');
+        pttButton.classList.add('disabled');
+        pttButton.textContent = '🎤 HOU IN';
+        if (localStream) {
+            localStream.getTracks().forEach(t => t.stop());
+            localStream = null;
+        }
+        microEnabled = false;
+        microStatus.textContent = '⏳ Microfoon gestopt';
+        microStatus.className = 'micro-status';
+        retryMicBtn.classList.add('hidden');
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
 
     // Start
     loginScreen.classList.remove('hidden');
