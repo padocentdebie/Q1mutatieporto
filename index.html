@@ -35,6 +35,7 @@
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-secondary { background: #6c757d; color: white; }
+        .btn-warning { background: #f0c040; color: #1a2332; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .status-bar {
             display: flex; justify-content: space-between; align-items: center;
@@ -67,6 +68,11 @@
             background: #f0c040; color: #1a2332;
             transform: scale(0.97);
         }
+        .ptt-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
         .chat-box {
             background: #0d1624; border-radius: 12px; padding: 10px;
             max-height: 150px; overflow-y: auto; border: 1px solid #2a3a4a;
@@ -91,6 +97,7 @@
         }
         .micro-status.ok { color: #28a745; }
         .micro-status.err { color: #dc3545; }
+        .micro-status.warning { color: #f0c040; }
         .role-badge {
             display: inline-block; padding: 4px 10px; border-radius: 12px;
             font-size: 0.75rem; font-weight: bold;
@@ -98,6 +105,16 @@
         }
         .info-text {
             color: #8899aa; font-size: 0.75rem; text-align: center; margin-top: 8px;
+        }
+        .retry-btn {
+            margin-top: 4px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            background: #4a90d9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -145,7 +162,10 @@
                 <span id="userCount" style="font-size:0.8rem;">👥 0</span>
             </div>
             <div class="user-list" id="userList"><span style="color:#667788;">Verbinden...</span></div>
-            <div class="micro-status" id="microStatus">⏳ Microfoon starten...</div>
+            <div class="micro-status" id="microStatus">
+                ⏳ Microfoon starten...
+                <button class="retry-btn hidden" id="retryMicBtn">🔄 Probeer opnieuw</button>
+            </div>
 
             <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
             <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Ingedrukt houden om te spreken</div>
@@ -216,6 +236,7 @@
     const userCount = $('userCount');
     const userList = $('userList');
     const microStatus = $('microStatus');
+    const retryMicBtn = $('retryMicBtn');
     const pttButton = $('pttButton');
     const chatMessages = $('chatMessages');
     const chatInput = $('chatInput');
@@ -237,6 +258,7 @@
     let peerListUnsubscribe = null;
     let peersRef = null;
     let microEnabled = false;
+    let micAttempts = 0;
 
     function generateId() {
         return 'P-' + Math.random().toString(36).substr(2, 8);
@@ -271,20 +293,43 @@
         userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
     }
 
-    // ----- Microfoon (altijd activeren) -----
+    // ----- Microfoon (met retry) -----
     async function initMicrophone() {
+        microStatus.textContent = '⏳ Microfoon wordt gestart...';
+        microStatus.className = 'micro-status';
+        retryMicBtn.classList.add('hidden');
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, echoCancellation: true, noiseSuppression: true });
+            localStream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+            });
             localStream.getAudioTracks().forEach(t => t.enabled = false);
             microEnabled = true;
             microStatus.textContent = '✅ Microfoon gereed';
             microStatus.className = 'micro-status ok';
+            retryMicBtn.classList.add('hidden');
             return true;
         } catch (err) {
             microEnabled = false;
-            microStatus.textContent = '❌ Geen microfoontoegang - gebruik alleen chat';
+            microStatus.textContent = '❌ Geen microfoon (of geweigerd) – chat werkt wel';
             microStatus.className = 'micro-status err';
+            retryMicBtn.classList.remove('hidden');
+            // Toon extra uitleg
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                microStatus.textContent = '⚠️ Microfoontoegang geweigerd. Geef toestemming in de browser of gebruik alleen chat.';
+                microStatus.className = 'micro-status warning';
+            }
             return false;
+        }
+    }
+
+    async function retryMicrophone() {
+        await initMicrophone();
+        if (microEnabled) {
+            pttButton.disabled = false;
+            pttButton.classList.remove('disabled');
+        } else {
+            pttButton.disabled = true;
+            pttButton.classList.add('disabled');
         }
     }
 
@@ -307,7 +352,7 @@
         if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
     }
 
-    // ----- Audio oproep (altijd opzetten) -----
+    // ----- Audio oproep -----
     function callPeer(peerId) {
         if (!localStream) return;
         if (audioConnections.has(peerId)) return;
@@ -342,7 +387,6 @@
             connections.add(peerId);
             dataConnections.set(peerId, conn);
             conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
-            // Audio altijd opzetten (als microfoon beschikbaar)
             if (localStream) callPeer(peerId);
             updateUserList();
             addChat('🔗', `${peerId} is verbonden`, true);
@@ -437,7 +481,7 @@
         setStatus('connecting', 'Verbinden...');
 
         // Microfoon altijd proberen
-        const micOk = await initMicrophone();
+        await initMicrophone();
 
         peer = new Peer(myId);
         peer.on('open', () => {
@@ -447,9 +491,10 @@
             chatSendBtn.disabled = false;
             if (microEnabled) {
                 pttButton.disabled = false;
+                pttButton.classList.remove('disabled');
             } else {
                 pttButton.disabled = true;
-                // Toch chatten mogelijk
+                pttButton.classList.add('disabled');
             }
             addChat('📡', 'Je bent verbonden met de porto!', true);
             startPeerDiscovery();
@@ -524,6 +569,8 @@
     });
     chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') chatSendBtn.click(); });
 
+    retryMicBtn.addEventListener('click', retryMicrophone);
+
     disconnectBtn.addEventListener('click', () => {
         if (peer) peer.destroy();
         connections.clear();
@@ -546,6 +593,7 @@
         chatSendBtn.disabled = true;
         pttButton.disabled = true;
         pttButton.classList.remove('active');
+        pttButton.classList.add('disabled');
         pttButton.textContent = '🎤 HOU IN';
         if (localStream) {
             localStream.getTracks().forEach(t => t.stop());
@@ -554,6 +602,7 @@
         microEnabled = false;
         microStatus.textContent = '⏳ Microfoon gestopt';
         microStatus.className = 'micro-status';
+        retryMicBtn.classList.add('hidden');
     });
 
     // Start
