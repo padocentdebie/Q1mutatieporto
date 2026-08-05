@@ -6,6 +6,7 @@
     <title>📻 Porto - Lesmutatie</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
+        /* Alle stijlen blijven identiek aan de vorige werkende versie */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -557,6 +558,7 @@
     let isAdmin = false;
     let caseUnsubscribe = null;
     let mutatieUnsubscribe = null;
+    let audioContextStarted = false;
 
     function generateId() { return 'P-' + Math.random().toString(36).substr(2, 8); }
 
@@ -589,7 +591,22 @@
         userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
     }
 
-    // ----- MICROFOON (exact uit de werkende porto) -----
+    // ----- AUDIO CONTEXT STARTEN (voor Chrome autoplay) -----
+    function startAudioContext() {
+        if (audioContextStarted) return;
+        // Maak een stille audio context om de browser te "ontgrendelen"
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(() => {
+                audioContextStarted = true;
+                console.log('Audio context gestart');
+            }).catch(err => console.warn('Audio context start mislukt:', err));
+        } else {
+            audioContextStarted = true;
+        }
+    }
+
+    // ----- MICROFOON (aangepast voor betrouwbaar geluid) -----
     async function initMicrophone() {
         if (isMicInitializing) return;
         isMicInitializing = true;
@@ -605,8 +622,13 @@
             microStatus.textContent = '✅ Microfoon gereed';
             microStatus.className = 'micro-status ok';
             retryMicBtn.classList.add('hidden');
-            pttButton.disabled = false;
-            pttButton.classList.remove('disabled');
+            if (myRole !== 'Burger') {
+                pttButton.disabled = false;
+                pttButton.classList.remove('disabled');
+            } else {
+                pttButton.disabled = true;
+                pttButton.classList.add('disabled');
+            }
             if (isConnected) {
                 for (let peerId of connections) {
                     if (!audioConnections.has(peerId)) {
@@ -649,6 +671,8 @@
     // ----- PTT -----
     function startSpeaking() {
         if (!isConnected || !microEnabled || isSpeaking || myRole === 'Burger') return;
+        // Start audio context bij eerste klik (Chrome)
+        startAudioContext();
         isSpeaking = true;
         pttButton.classList.add('active');
         pttButton.textContent = '🔴 SPREEKT...';
@@ -665,17 +689,21 @@
         if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
     }
 
-    // ----- AUDIO OPROEP -----
+    // ----- AUDIO OPROEP (verbeterd) -----
     function callPeer(peerId) {
         if (!localStream || !microEnabled) return;
         if (audioConnections.has(peerId)) return;
         const call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
+            // Start audio context bij eerste stream (Chrome)
+            startAudioContext();
             const audio = document.createElement('audio');
             audio.autoplay = true;
             audio.srcObject = remoteStream;
             audio.volume = 1.0;
             audio.muted = false;
+            // Probeer af te spelen
+            audio.play().catch(err => console.warn('Audio afspelen mislukt:', err));
             document.body.appendChild(audio);
             audioConnections.set(peerId, { call, audio });
         });
@@ -901,8 +929,13 @@
         });
     }
 
-    // ----- ROLINFO WEERGEVEN -----
+    // ----- ROLINFO WEERGEVEN (gegarandeerd zichtbaar) -----
     function updateRoleInfo() {
+        // Controleer of de DOM-elementen bestaan
+        if (!myRoleInfo) {
+            console.warn('myRoleInfo element niet gevonden');
+            return;
+        }
         if (!currentScenario) {
             myRoleInfo.textContent = 'Geen actieve casus. Wacht op de docent.';
             otherRolesInfo.innerHTML = '';
@@ -1009,7 +1042,7 @@
 
         setStatus('connecting', 'Verbinden...');
 
-        // PeerJS opzetten (exact zoals in de werkende porto)
+        // PeerJS opzetten
         peer = new Peer(myId);
         peer.on('open', () => {
             isConnected = true;
@@ -1036,11 +1069,14 @@
             }
             call.answer(localStream);
             call.on('stream', (remoteStream) => {
+                // Start audio context bij eerste inkomende stream
+                startAudioContext();
                 const audio = document.createElement('audio');
                 audio.autoplay = true;
                 audio.srcObject = remoteStream;
                 audio.volume = 1.0;
                 audio.muted = false;
+                audio.play().catch(err => console.warn('Audio afspelen mislukt:', err));
                 document.body.appendChild(audio);
                 audioConnections.set(call.peer, { call, audio });
             });
@@ -1142,6 +1178,9 @@
             document.getElementById(btn.dataset.tab).classList.add('active');
         });
     });
+
+    // Klik op de pagina om de audio context te starten (Chrome vereist)
+    document.addEventListener('click', startAudioContext, { once: true });
 
     // Start
     loginScreen.classList.remove('hidden');
