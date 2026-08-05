@@ -747,7 +747,8 @@
                 opdrachtBox.style.display = 'none';
             }
 
-            if (myType === 'police') {
+            // Toon porto-hint voor politie én OC
+            if (myType === 'police' || myRole === OC_ROLE) {
                 portoHint.classList.remove('hidden');
             } else {
                 portoHint.classList.add('hidden');
@@ -781,7 +782,8 @@
         }
 
         function startSpeaking() {
-            if (isSpeaking || !isConnected || myType !== 'police' || !microfoonToegestaan) return;
+            // Toestaan voor politie en OC
+            if (isSpeaking || !isConnected || !(myType === 'police' || myRole === OC_ROLE) || !microfoonToegestaan) return;
             isSpeaking = true;
             pttButton.classList.add('active');
             pttButton.textContent = '🔴 SPREEKT...';
@@ -825,6 +827,7 @@
                 if (!connections.some(c => c.peer === conn.peer)) {
                     connections.push(conn);
                     conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
+                    // Start audio call als politie of OC
                     if ((myType === 'police' || myRole === OC_ROLE) && localStream) {
                         callPeer(conn.peer);
                     }
@@ -863,7 +866,6 @@
         function connectToPeer(peerId) {
             if (peerId === myId) return;
             if (connections.some(c => c.peer === peerId)) return; // al verbonden
-            // Open data verbinding
             const conn = peer.connect(peerId);
             if (conn) {
                 setupDataConnection(conn);
@@ -874,17 +876,14 @@
 
         function startPeerDiscovery() {
             peersRef = getPeersRef();
-            // Schrijf onszelf naar Firebase
             const myPeerRef = ref(database, `q1_peers/${myClass}/${myId}`);
             set(myPeerRef, {
                 username: myUsername,
                 role: myRole,
                 timestamp: serverTimestamp()
             });
-            // Zorg dat we onszelf verwijderen bij disconnect
             onDisconnect(myPeerRef).remove();
 
-            // Luister naar andere peers
             if (peerListUnsubscribe) peerListUnsubscribe();
             peerListUnsubscribe = onValue(peersRef, (snapshot) => {
                 const peers = snapshot.val();
@@ -892,7 +891,6 @@
                 const peerIds = Object.keys(peers);
                 peerIds.forEach(id => {
                     if (id !== myId) {
-                        // Verbind met deze peer als we nog niet verbonden zijn
                         if (!connections.some(c => c.peer === id)) {
                             connectToPeer(id);
                         }
@@ -924,20 +922,19 @@
 
             await initMicrofoon();
 
-            // Peer aanmaken
             peer = new Peer(myId);
             peer.on('open', () => {
                 isConnected = true;
                 setStatus('online', 'Online');
                 wtChatInput.disabled = false;
                 wtChatSendBtn.disabled = false;
-                if (myType === 'police' && microfoonToegestaan) {
+                // PTT actief voor politie én OC
+                if ((myType === 'police' || myRole === OC_ROLE) && microfoonToegestaan) {
                     pttContainer.classList.add('active');
                     pttButton.disabled = false;
                 }
                 updateUserList();
                 addChat('📡 Systeem', 'Je bent verbonden met de porto!', true);
-                // Start discovery
                 startPeerDiscovery();
             });
             peer.on('connection', (conn) => {
@@ -1019,7 +1016,6 @@
             isConnected = false;
             if (peerListUnsubscribe) peerListUnsubscribe();
             if (peersRef) {
-                // Verwijder onszelf uit de peer lijst
                 const myPeerRef = ref(database, `q1_peers/${myClass}/${myId}`);
                 remove(myPeerRef);
             }
