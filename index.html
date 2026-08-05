@@ -1187,5 +1187,60 @@
         loginScreen.classList.remove('hidden');
         mainScreen.classList.add('hidden');
     </script>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
+        authDomain: "speeltuin-recherche.firebaseapp.com",
+        databaseURL: "https://speeltuin-recherche-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "speeltuin-recherche",
+        storageBucket: "speeltuin-recherche.firebasestorage.app",
+        messagingSenderId: "499912834123",
+        appId: "1:499912834123:web:3c84cbf4d5eb13131961ce"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ----- DOM refs -----
+    const $ = id => document.getElementById(id);
+    const connectBtn = $('connectBtn');
+    const loginError = $('loginError');
+    const loginScreen = $('loginScreen');
+    const mainScreen = $('mainScreen');
+
+    // ----- Vereenvoudigde connect functie (zonder roltoewijzing) -----
+    async function connectToRoom() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const klas = document.getElementById('classSelect').value;
+        if (!username) {
+            loginError.textContent = 'Vul je naam in.';
+            return;
+        }
+        // Kies een vaste rol voor test (later pas echte toewijzing)
+        const myRole = 'Meldkamer'; // of 'Burger', 'Collega1', 'Collega2'
+        const myId = 'P-' + Math.random().toString(36).substr(2, 8);
+        const myClass = klas;
+
+        // Verberg login, toon hoofdscherm
+        loginScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+
+        // Toon de gekozen rol (alleen voor test)
+        document.getElementById('roleDisplay').textContent = myRole;
+        document.getElementById('displayName').textContent = username;
+
+        // Hier zou de echte PeerJS-code komen, maar eerst testen we of de knop reageert.
+        alert('Verbinden gelukt! (test)');
+    }
+
+    // Event listener
+    connectBtn.addEventListener('click', connectToRoom);
+
+    // Start
+    loginScreen.classList.remove('hidden');
+    mainScreen.classList.add('hidden');
+</script>
 </body>
 </html>
