@@ -11,7 +11,6 @@
     </script>
     
     <style>
-        /* ... (stijlen blijven identiek) ... */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -215,7 +214,6 @@
                     <div class="user-list" id="wtUserList"><span style="color:#667788; font-size:0.7rem;">Verbinden met klas...</span></div>
                     <div class="micro-status" id="microStatus">⏳ Start...</div>
                     
-                    <!-- PTT-knop voor alle politie-rollen -->
                     <div id="pttContainer" class="ptt-container">
                         <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
                         <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Houd ingedrukt om te spreken via de porto</div>
@@ -238,7 +236,6 @@
                             <strong>📋 JOUW INSTRUCTIE:</strong>
                             <p id="opdrachtText"></p>
                         </div>
-                        <!-- Extra hint voor porto-gebruik bij politie-rollen -->
                         <div id="portoHint" class="porto-hint hidden">
                             📻 <strong>Gebruik de PORTO-knop</strong> hierboven om te communiceren met collega's en het OC.
                         </div>
@@ -313,7 +310,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
@@ -544,6 +541,8 @@
         let myUsername = '', myId = '';
         let microfoonToegestaan = false, currentScenario = null;
         window._audioElements = new Map();
+        let peersRef = null;
+        let peerListUnsubscribe = null;
 
         const POLICE_ROLES = ['Agent', 'Commandant', 'AangeslotenCollega', 'AangeslotenKoppel'];
         const OC_ROLE = 'OC';
@@ -614,6 +613,7 @@
         // ----- Firebase hulp -----
         function getMutatieRef() { return ref(database, `q1_mutaties/${myClass}`); }
         function getFeedbackRef(mutId) { return ref(database, `q1_mutaties/${myClass}/${mutId}/feedback`); }
+        function getPeersRef() { return ref(database, `q1_peers/${myClass}`); }
 
         function submitMutatie() {
             const mutatie = {
@@ -747,7 +747,6 @@
                 opdrachtBox.style.display = 'none';
             }
 
-            // Toon porto-hint voor politie-rollen (inclusief AangeslotenKoppel)
             if (myType === 'police') {
                 portoHint.classList.remove('hidden');
             } else {
@@ -860,6 +859,48 @@
             });
         }
 
+        // ----- Peer discovery via Firebase -----
+        function connectToPeer(peerId) {
+            if (peerId === myId) return;
+            if (connections.some(c => c.peer === peerId)) return; // al verbonden
+            // Open data verbinding
+            const conn = peer.connect(peerId);
+            if (conn) {
+                setupDataConnection(conn);
+            } else {
+                console.warn('Kon geen verbinding maken met', peerId);
+            }
+        }
+
+        function startPeerDiscovery() {
+            peersRef = getPeersRef();
+            // Schrijf onszelf naar Firebase
+            const myPeerRef = ref(database, `q1_peers/${myClass}/${myId}`);
+            set(myPeerRef, {
+                username: myUsername,
+                role: myRole,
+                timestamp: serverTimestamp()
+            });
+            // Zorg dat we onszelf verwijderen bij disconnect
+            onDisconnect(myPeerRef).remove();
+
+            // Luister naar andere peers
+            if (peerListUnsubscribe) peerListUnsubscribe();
+            peerListUnsubscribe = onValue(peersRef, (snapshot) => {
+                const peers = snapshot.val();
+                if (!peers) return;
+                const peerIds = Object.keys(peers);
+                peerIds.forEach(id => {
+                    if (id !== myId) {
+                        // Verbind met deze peer als we nog niet verbonden zijn
+                        if (!connections.some(c => c.peer === id)) {
+                            connectToPeer(id);
+                        }
+                    }
+                });
+            });
+        }
+
         async function connectToRoom() {
             myUsername = usernameInput.value.trim();
             myClass = classSelect.value;
@@ -883,19 +924,21 @@
 
             await initMicrofoon();
 
+            // Peer aanmaken
             peer = new Peer(myId);
             peer.on('open', () => {
                 isConnected = true;
                 setStatus('online', 'Online');
                 wtChatInput.disabled = false;
                 wtChatSendBtn.disabled = false;
-                // PTT actief voor alle politie-rollen
                 if (myType === 'police' && microfoonToegestaan) {
                     pttContainer.classList.add('active');
                     pttButton.disabled = false;
                 }
                 updateUserList();
                 addChat('📡 Systeem', 'Je bent verbonden met de porto!', true);
+                // Start discovery
+                startPeerDiscovery();
             });
             peer.on('connection', (conn) => {
                 if (conn.peer !== myId) {
@@ -974,6 +1017,12 @@
             allCalls.forEach(c => c.close());
             allCalls = [];
             isConnected = false;
+            if (peerListUnsubscribe) peerListUnsubscribe();
+            if (peersRef) {
+                // Verwijder onszelf uit de peer lijst
+                const myPeerRef = ref(database, `q1_peers/${myClass}/${myId}`);
+                remove(myPeerRef);
+            }
             loginScreen.classList.remove('hidden');
             wtScreen.classList.add('hidden');
         });
