@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>📻 Porto - Walkie Talkie Training</title>
+    <title>📻 Porto - Walkie Talkie</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -177,7 +177,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ----- Rollen en scenario's (vereenvoudigd) -----
+    // ----- Rollen (eenvoudig) -----
     const SCENARIOS = {
         "ALPHA": { rollen: ["Agent", "Verdachte", "Getuige", "OC"] },
         "BRAVO": { rollen: ["Agent", "Slachtoffer", "Getuige", "OC"] },
@@ -231,13 +231,13 @@
     let myClass = '';
     let myRole = '';
     let myId = '';
-    let connections = new Map(); // peerId -> data connection
-    let audioCalls = new Map();  // peerId -> media connection
+    const connections = new Set();          // peerId
+    const dataConnections = new Map();     // peerId -> DataConnection
+    const audioConnections = new Map();    // peerId -> { call, audio }
     let peerListUnsubscribe = null;
     let peersRef = null;
     let microEnabled = false;
 
-    // ----- Helper functies -----
     function generateId() {
         return 'P-' + Math.random().toString(36).substr(2, 8);
     }
@@ -263,20 +263,18 @@
     }
 
     function updateUserList() {
-        const count = connections.size;
-        userCount.textContent = `👥 ${count}`;
+        userCount.textContent = `👥 ${connections.size}`;
         let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
-        for (let id of connections.keys()) {
+        for (let id of connections) {
             html += `<span class="chip">📞 ${id}</span>`;
         }
         userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
     }
 
-    // ----- Microfoon -----
+    // ----- Microfoon (altijd activeren) -----
     async function initMicrophone() {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Zet standaard uit
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, echoCancellation: true, noiseSuppression: true });
             localStream.getAudioTracks().forEach(t => t.enabled = false);
             microEnabled = true;
             microStatus.textContent = '✅ Microfoon gereed';
@@ -284,7 +282,7 @@
             return true;
         } catch (err) {
             microEnabled = false;
-            microStatus.textContent = '❌ Geen microfoontoegang';
+            microStatus.textContent = '❌ Geen microfoontoegang - gebruik alleen chat';
             microStatus.className = 'micro-status err';
             return false;
         }
@@ -297,9 +295,7 @@
         pttButton.classList.add('active');
         pttButton.textContent = '🔴 SPREEKT...';
         setStatus('speaking', 'Spreekt...');
-        if (localStream) {
-            localStream.getAudioTracks().forEach(t => t.enabled = true);
-        }
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = true);
     }
 
     function stopSpeaking() {
@@ -308,15 +304,13 @@
         pttButton.classList.remove('active');
         pttButton.textContent = '🎤 HOU IN';
         setStatus('online', 'Online');
-        if (localStream) {
-            localStream.getAudioTracks().forEach(t => t.enabled = false);
-        }
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
     }
 
-    // ----- Peer verbindingen -----
+    // ----- Audio oproep (altijd opzetten) -----
     function callPeer(peerId) {
         if (!localStream) return;
-        if (audioCalls.has(peerId)) return;
+        if (audioConnections.has(peerId)) return;
         const call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
             const audio = document.createElement('audio');
@@ -325,55 +319,54 @@
             audio.volume = 1.0;
             audio.muted = false;
             document.body.appendChild(audio);
-            audioCalls.set(peerId, { call, audio });
+            audioConnections.set(peerId, { call, audio });
         });
         call.on('close', () => {
-            const entry = audioCalls.get(peerId);
+            const entry = audioConnections.get(peerId);
             if (entry) {
                 entry.audio.remove();
-                audioCalls.delete(peerId);
+                audioConnections.delete(peerId);
             }
         });
     }
 
+    // ----- Data verbinding -----
     function setupDataConnection(conn) {
         const peerId = conn.peer;
+        if (connections.has(peerId)) {
+            conn.close();
+            return;
+        }
+
         conn.on('open', () => {
-            if (connections.has(peerId)) return;
-            connections.set(peerId, conn);
-            // Stuur hallo naar deze peer
+            connections.add(peerId);
+            dataConnections.set(peerId, conn);
             conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
-            // Start audio als we microfoon hebben
-            if (localStream) {
-                callPeer(peerId);
-            }
+            // Audio altijd opzetten (als microfoon beschikbaar)
+            if (localStream) callPeer(peerId);
             updateUserList();
             addChat('🔗', `${peerId} is verbonden`, true);
         });
+
         conn.on('data', (data) => {
             if (data.class && data.class !== myClass) return;
             if (data.type === 'hello') {
-                // We sturen geen hello terug om lus te voorkomen
-                // Alleen melden als het een nieuwe peer is (niet al in connections)
-                if (!connections.has(peerId)) {
-                    connections.set(peerId, conn);
-                    updateUserList();
-                    addChat('🔗', `${data.username} (${data.role}) is verbonden`, true);
-                }
+                // We hebben al een verbinding; geen actie nodig
                 return;
             }
             if (data.type === 'chat') {
                 addChat(`${data.sender} (${data.role})`, data.text);
             }
         });
+
         conn.on('close', () => {
             connections.delete(peerId);
-            // Audio sluiten
-            const entry = audioCalls.get(peerId);
+            dataConnections.delete(peerId);
+            const entry = audioConnections.get(peerId);
             if (entry) {
                 entry.call.close();
                 entry.audio.remove();
-                audioCalls.delete(peerId);
+                audioConnections.delete(peerId);
             }
             updateUserList();
             addChat('🔌', `${peerId} is verbroken`, true);
@@ -383,7 +376,6 @@
     // ----- Peer discovery via Firebase -----
     function startPeerDiscovery() {
         peersRef = ref(db, `porto_peers/${myClass}`);
-        // Schrijf onszelf
         const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
         set(myPeerRef, {
             username: myUsername,
@@ -400,7 +392,6 @@
             for (let id of ids) {
                 if (id === myId) continue;
                 if (!connections.has(id)) {
-                    // Probeer te verbinden
                     const conn = peer.connect(id);
                     if (conn) {
                         setupDataConnection(conn);
@@ -432,7 +423,6 @@
 
         displayName.textContent = myUsername;
         roleDisplay.textContent = myRole;
-        // Styling role badge
         if (['Agent','Commandant','AangeslotenCollega','AangeslotenKoppel'].includes(myRole)) {
             roleDisplay.style.background = '#28a745';
         } else if (myRole === 'OC') {
@@ -446,13 +436,9 @@
         portoScreen.classList.remove('hidden');
         setStatus('connecting', 'Verbinden...');
 
-        // Microfoon initialiseren
+        // Microfoon altijd proberen
         const micOk = await initMicrophone();
-        if (!micOk) {
-            // Toch doorgaan, maar PTT blijft uit
-        }
 
-        // Peer aanmaken
         peer = new Peer(myId);
         peer.on('open', () => {
             isConnected = true;
@@ -463,10 +449,12 @@
                 pttButton.disabled = false;
             } else {
                 pttButton.disabled = true;
+                // Toch chatten mogelijk
             }
             addChat('📡', 'Je bent verbonden met de porto!', true);
             startPeerDiscovery();
         });
+
         peer.on('connection', (conn) => {
             if (conn.peer !== myId) {
                 setupDataConnection(conn);
@@ -474,6 +462,7 @@
                 conn.close();
             }
         });
+
         peer.on('call', (call) => {
             if (!localStream) { call.answer(); return; }
             call.answer(localStream);
@@ -484,16 +473,17 @@
                 audio.volume = 1.0;
                 audio.muted = false;
                 document.body.appendChild(audio);
-                audioCalls.set(call.peer, { call, audio });
+                audioConnections.set(call.peer, { call, audio });
             });
             call.on('close', () => {
-                const entry = audioCalls.get(call.peer);
+                const entry = audioConnections.get(call.peer);
                 if (entry) {
                     entry.audio.remove();
-                    audioCalls.delete(call.peer);
+                    audioConnections.delete(call.peer);
                 }
             });
         });
+
         peer.on('error', (err) => {
             console.error(err);
             if (err.type === 'unavailable-id') {
@@ -503,6 +493,7 @@
                 addChat('❌ Fout', err.message, true);
             }
         });
+
         peer.on('disconnected', () => {
             addChat('⚠️', 'Verbinding verbroken, opnieuw verbinden...', true);
             setTimeout(() => {
@@ -525,7 +516,7 @@
         const text = chatInput.value.trim();
         if (!text) return;
         const data = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text };
-        for (let conn of connections.values()) {
+        for (let conn of dataConnections.values()) {
             try { conn.send(data); } catch(e) {}
         }
         addChat(`📤 ${myUsername} (${myRole})`, text);
@@ -536,11 +527,12 @@
     disconnectBtn.addEventListener('click', () => {
         if (peer) peer.destroy();
         connections.clear();
-        for (let entry of audioCalls.values()) {
+        dataConnections.clear();
+        for (let entry of audioConnections.values()) {
             entry.call.close();
             entry.audio.remove();
         }
-        audioCalls.clear();
+        audioConnections.clear();
         isConnected = false;
         if (peerListUnsubscribe) peerListUnsubscribe();
         if (peersRef) {
@@ -564,7 +556,7 @@
         microStatus.className = 'micro-status';
     });
 
-    // Start hidden
+    // Start
     loginScreen.classList.remove('hidden');
     portoScreen.classList.add('hidden');
 </script>
