@@ -183,7 +183,7 @@
             <div id="loginError" class="error"></div>
             <div class="info-text">
                 <strong>Q1 Training:</strong> Jouw rol wordt automatisch toegewezen.<br>
-                Luister via porto → noteer de 7 gouden W's voor het Operationeel Centrum!
+                Iedereen heeft een porto! → gebruik de knop om te spreken.
             </div>
         </div>
 
@@ -214,6 +214,7 @@
                     <div class="user-list" id="wtUserList"><span style="color:#667788; font-size:0.7rem;">Verbinden met klas...</span></div>
                     <div class="micro-status" id="microStatus">⏳ Start...</div>
                     
+                    <!-- PTT altijd zichtbaar als microfoon beschikbaar is -->
                     <div id="pttContainer" class="ptt-container">
                         <button class="ptt-btn" id="pttButton" disabled>🎤 HOU IN</button>
                         <div style="text-align:center; font-size:0.8rem; color:#8899aa; margin-top:4px;">Houd ingedrukt om te spreken via de porto</div>
@@ -236,8 +237,8 @@
                             <strong>📋 JOUW INSTRUCTIE:</strong>
                             <p id="opdrachtText"></p>
                         </div>
-                        <div id="portoHint" class="porto-hint hidden">
-                            📻 <strong>Gebruik de PORTO-knop</strong> hierboven om te communiceren met collega's en het OC.
+                        <div class="porto-hint">
+                            📻 <strong>Iedereen heeft een porto!</strong> Gebruik de knop hierboven om te communiceren.
                         </div>
                     </div>
                     
@@ -589,7 +590,7 @@
         }
 
         function updateUserList() {
-            wtUserCount.textContent = `👥 ${Math.max(1, connections.length)} in ${myClass}`;
+            wtUserCount.textContent = `👥 ${connections.length} in ${myClass}`;
             let html = `<span class="chip" style="border-color:#f0c040;">📡 ${myId} (Jij)</span>`;
             connections.forEach(c => { if (c.peer !== myId) html += `<span class="chip">📞 ${c.peer}</span>`; });
             wtUserList.innerHTML = html;
@@ -747,12 +748,8 @@
                 opdrachtBox.style.display = 'none';
             }
 
-            // Toon porto-hint voor politie én OC
-            if (myType === 'police' || myRole === OC_ROLE) {
-                portoHint.classList.remove('hidden');
-            } else {
-                portoHint.classList.add('hidden');
-            }
+            // Porto-hint altijd tonen (iedereen heeft porto)
+            portoHint.style.display = 'block';
 
             $('mutatieKlas').textContent = myClass;
             $('mutatieScenario').textContent = currentScenario.titel;
@@ -781,9 +778,9 @@
             });
         }
 
+        // PTT voor iedereen
         function startSpeaking() {
-            // Toestaan voor politie en OC
-            if (isSpeaking || !isConnected || !(myType === 'police' || myRole === OC_ROLE) || !microfoonToegestaan) return;
+            if (isSpeaking || !isConnected || !microfoonToegestaan) return;
             isSpeaking = true;
             pttButton.classList.add('active');
             pttButton.textContent = '🔴 SPREEKT...';
@@ -824,11 +821,13 @@
 
         function setupDataConnection(conn) {
             conn.on('open', () => {
+                // Alleen verbinden als deze peer nog niet in de lijst staat
                 if (!connections.some(c => c.peer === conn.peer)) {
                     connections.push(conn);
+                    // Stuur hallo naar de nieuwe peer
                     conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
-                    // Start audio call als politie of OC
-                    if ((myType === 'police' || myRole === OC_ROLE) && localStream) {
+                    // Start audio call (iedereen mag bellen)
+                    if (localStream) {
                         callPeer(conn.peer);
                     }
                     updateUserList();
@@ -837,23 +836,17 @@
             conn.on('data', (data) => {
                 if (data.class && data.class !== myClass) return;
                 if (data.type === 'hello') {
-                    addChat(`🔗 ${data.username} (${data.role})`, 'is verbonden!', true);
-                    if (isConnected && myUsername) {
-                        try {
-                            conn.send({ type: 'hello', username: myUsername, id: myId, role: myRole, class: myClass });
-                        } catch(e) {}
+                    // We hebben al een verbinding, geen verdere actie nodig
+                    // Alleen een melding in de chat als we deze peer nog niet kenden
+                    if (!connections.some(c => c.peer === conn.peer && c !== conn)) {
+                        addChat(`🔗 ${data.username} (${data.role})`, 'is verbonden!', true);
                     }
-                    updateUserList();
+                    // Stuur geen hello terug om lus te voorkomen
                     return;
                 }
                 if (data.type === 'chat') {
-                    const showToMe = myRole === OC_ROLE ||
-                        (myType === 'police' && POLICE_ROLES.includes(data.role)) ||
-                        (myType === 'non-police' && !POLICE_ROLES.includes(data.role) && data.role !== OC_ROLE) ||
-                        (myRole === data.role);
-                    if (showToMe) {
-                        addChat(`${data.sender} (${data.role})`, data.text);
-                    }
+                    // Toon alle berichten voor iedereen
+                    addChat(`${data.sender} (${data.role})`, data.text);
                 }
             });
             conn.on('close', () => {
@@ -865,7 +858,8 @@
         // ----- Peer discovery via Firebase -----
         function connectToPeer(peerId) {
             if (peerId === myId) return;
-            if (connections.some(c => c.peer === peerId)) return; // al verbonden
+            // Al verbonden? overslaan
+            if (connections.some(c => c.peer === peerId)) return;
             const conn = peer.connect(peerId);
             if (conn) {
                 setupDataConnection(conn);
@@ -876,6 +870,7 @@
 
         function startPeerDiscovery() {
             peersRef = getPeersRef();
+            // Schrijf onszelf naar Firebase
             const myPeerRef = ref(database, `q1_peers/${myClass}/${myId}`);
             set(myPeerRef, {
                 username: myUsername,
@@ -884,6 +879,7 @@
             });
             onDisconnect(myPeerRef).remove();
 
+            // Luister naar veranderingen in de peer lijst
             if (peerListUnsubscribe) peerListUnsubscribe();
             peerListUnsubscribe = onValue(peersRef, (snapshot) => {
                 const peers = snapshot.val();
@@ -891,6 +887,7 @@
                 const peerIds = Object.keys(peers);
                 peerIds.forEach(id => {
                     if (id !== myId) {
+                        // Verbind alleen als we nog geen verbinding hebben
                         if (!connections.some(c => c.peer === id)) {
                             connectToPeer(id);
                         }
@@ -928,8 +925,8 @@
                 setStatus('online', 'Online');
                 wtChatInput.disabled = false;
                 wtChatSendBtn.disabled = false;
-                // PTT actief voor politie én OC
-                if ((myType === 'police' || myRole === OC_ROLE) && microfoonToegestaan) {
+                // PTT actief voor iedereen als microfoon beschikbaar is
+                if (microfoonToegestaan) {
                     pttContainer.classList.add('active');
                     pttButton.disabled = false;
                 }
