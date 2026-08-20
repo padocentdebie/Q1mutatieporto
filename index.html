@@ -6,7 +6,7 @@
     <title>📻 Porto - Lesmutatie</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        /* Alle stijlen blijven identiek aan de vorige werkende versie */
+        /* Alle stijlen blijven identiek */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -178,6 +178,7 @@
         .checklist .item.miss { color: #dc3545; background: #3a1a1a; }
         .admin-bar {
             display: flex; gap: 8px; margin-top: 12px;
+            flex-wrap: wrap;
         }
         .admin-bar .btn { width: auto; padding: 8px 16px; }
         .empty-state { text-align: center; color: #667788; padding: 20px; font-style: italic; }
@@ -277,6 +278,10 @@
                 <option value="FOXTROT">FOXTROT</option>
                 <option value="GOLF">GOLF</option>
                 <option value="HOTEL">HOTEL</option>
+                <option value="JULIETT">JULIETT</option>
+                <option value="KILO">KILO</option>
+                <option value="LIMA">LIMA</option>
+                <option value="MIKE">MIKE</option>
             </select>
         </div>
         <button class="btn btn-success" id="connectBtn">🔗 Verbinden</button>
@@ -373,6 +378,7 @@
 
                 <div class="admin-bar">
                     <button class="btn btn-warning" id="nextCaseBtn" style="display:none;">➡️ Volgende casus</button>
+                    <button class="btn btn-danger" id="resetBtn" style="display:none;">🔄 Reset alles</button>
                 </div>
 
                 <button class="btn btn-danger" id="disconnectBtn" style="margin-top:10px;">🚪 Verbinding verbreken</button>
@@ -521,6 +527,7 @@
     const chatInput = $('chatInput');
     const chatSendBtn = $('chatSendBtn');
     const disconnectBtn = $('disconnectBtn');
+    const resetBtn = $('resetBtn'); // Nieuw
     const mutWie = $('mutWie');
     const mutWat = $('mutWat');
     const mutWaar = $('mutWaar');
@@ -559,6 +566,9 @@
     let caseUnsubscribe = null;
     let mutatieUnsubscribe = null;
     let audioContextStarted = false;
+    // ----- AUDIO VARIABELEN (toegevoegd) -----
+    let allAudioElements = [];
+    let audioUnmuted = false;
 
     function generateId() { return 'P-' + Math.random().toString(36).substr(2, 8); }
 
@@ -591,10 +601,9 @@
         userList.innerHTML = html || '<span style="color:#667788;">Niemand anders in deze klas</span>';
     }
 
-    // ----- AUDIO CONTEXT STARTEN (voor Chrome autoplay) -----
+    // ----- AUDIO CONTEXT STARTEN -----
     function startAudioContext() {
         if (audioContextStarted) return;
-        // Maak een stille audio context om de browser te "ontgrendelen"
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (ctx.state === 'suspended') {
             ctx.resume().then(() => {
@@ -606,7 +615,15 @@
         }
     }
 
-    // ----- MICROFOON (aangepast voor betrouwbaar geluid) -----
+    // ----- UNMUTE ALL AUDIO -----
+    function unmuteAllAudio() {
+        if (audioUnmuted) return;
+        audioUnmuted = true;
+        allAudioElements.forEach(a => a.muted = false);
+        console.log('🔊 Audio ontgrendeld!');
+    }
+
+    // ----- MICROFOON -----
     async function initMicrophone() {
         if (isMicInitializing) return;
         isMicInitializing = true;
@@ -670,8 +687,8 @@
 
     // ----- PTT -----
     function startSpeaking() {
+        unmuteAllAudio();
         if (!isConnected || !microEnabled || isSpeaking || myRole === 'Burger') return;
-        // Start audio context bij eerste klik (Chrome)
         startAudioContext();
         isSpeaking = true;
         pttButton.classList.add('active');
@@ -689,28 +706,28 @@
         if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = false);
     }
 
-    // ----- AUDIO OPROEP (verbeterd) -----
+    // ----- AUDIO OPROEP -----
     function callPeer(peerId) {
         if (!localStream || !microEnabled) return;
         if (audioConnections.has(peerId)) return;
         const call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
-            // Start audio context bij eerste stream (Chrome)
             startAudioContext();
             const audio = document.createElement('audio');
             audio.autoplay = true;
+            audio.muted = true;
             audio.srcObject = remoteStream;
             audio.volume = 1.0;
-            audio.muted = false;
-            // Probeer af te spelen
-            audio.play().catch(err => console.warn('Audio afspelen mislukt:', err));
             document.body.appendChild(audio);
+            allAudioElements.push(audio);
+            audio.play().catch(err => console.warn('Audio play mislukt:', err));
             audioConnections.set(peerId, { call, audio });
         });
         call.on('close', () => {
             const entry = audioConnections.get(peerId);
             if (entry) {
                 entry.audio.remove();
+                allAudioElements = allAudioElements.filter(audio => audio !== entry.audio);
                 audioConnections.delete(peerId);
             }
         });
@@ -789,7 +806,7 @@
         });
     }
 
-    // ----- ROLTOEWIJZING (eerste 3 = Burger, Collega1, Collega2; rest = Meldkamer) -----
+    // ----- ROLTOEWIJZING -----
     async function assignRole() {
         const peersRef = ref(db, `porto_peers/${myClass}`);
         const snapshot = await new Promise(resolve => onValue(peersRef, resolve, { onlyOnce: true }));
@@ -815,7 +832,6 @@
         currentScenario = SCENARIOS[index];
         currentCaseName.textContent = currentScenario.naam;
         updateRoleInfo();
-        // Reset mutatieformulier
         mutWie.value = mutWat.value = mutWaar.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
         mutWanneer.value = '';
         saveIndicator.textContent = '';
@@ -929,9 +945,8 @@
         });
     }
 
-    // ----- ROLINFO WEERGEVEN (gegarandeerd zichtbaar) -----
+    // ----- ROLINFO -----
     function updateRoleInfo() {
-        // Controleer of de DOM-elementen bestaan
         if (!myRoleInfo) {
             console.warn('myRoleInfo element niet gevonden');
             return;
@@ -953,6 +968,57 @@
         otherRolesInfo.innerHTML = otherHtml || '<div class="rolinfo">Geen andere rollen.</div>';
     }
 
+    // ----- RESET FUNCTIE -----
+    async function resetAll() {
+        if (!confirm('⚠️ Weet je zeker dat je ALLE gebruikers wilt verwijderen en de casus wilt resetten? Dit kan niet ongedaan worden gemaakt.')) return;
+
+        // Verwijder alle peers, cases en mutaties
+        try {
+            await remove(ref(db, `porto_peers/${myClass}`));
+            await remove(ref(db, `cases/${myClass}`));
+            await remove(ref(db, `mutaties/${myClass}`));
+        } catch (err) {
+            console.error('Fout bij resetten:', err);
+        }
+
+        // Eigen verbinding verbreken en terug naar login
+        if (peer) {
+            peer.destroy();
+            peer = null;
+        }
+        isConnected = false;
+        connections.clear();
+        dataConnections.clear();
+        audioConnections.clear();
+        if (peerListUnsubscribe) peerListUnsubscribe();
+        if (caseUnsubscribe) caseUnsubscribe();
+        if (mutatieUnsubscribe) mutatieUnsubscribe();
+        if (localStream) {
+            localStream.getTracks().forEach(t => t.stop());
+            localStream = null;
+        }
+        loginScreen.classList.remove('hidden');
+        mainScreen.classList.add('hidden');
+        setStatus('offline', 'Offline');
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+        pttButton.disabled = true;
+        pttButton.classList.remove('active');
+        pttButton.classList.add('disabled');
+        pttButton.textContent = '🎤 HOU IN';
+        microEnabled = false;
+        microStatus.textContent = '⏳ Microfoon gestopt';
+        microStatus.className = 'micro-status';
+        retryMicBtn.classList.add('hidden');
+        resetBtn.style.display = 'none';
+        nextCaseBtn.style.display = 'none';
+        // Reset formulier
+        mutWie.value = mutWat.value = mutWaar.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
+        mutWanneer.value = '';
+        saveIndicator.textContent = '';
+        livefeedContainer.innerHTML = '<div class="empty-state">⏳ Wachten op mutatie...</div>';
+    }
+
     // ----- HOOFDFUNCTIE (verbinden) -----
     async function connectToRoom() {
         const username = usernameInput.value.trim();
@@ -970,12 +1036,10 @@
         myClass = klas;
         myId = generateId();
 
-        // Rol toewijzen
         const { role, isAdmin: admin } = await assignRole();
         myRole = role;
         isAdmin = admin;
 
-        // Direct de eerste casus laden (zodat rolinfo meteen zichtbaar is)
         currentCaseIndex = 0;
         currentScenario = SCENARIOS[0];
 
@@ -993,7 +1057,6 @@
         loginScreen.classList.add('hidden');
         mainScreen.classList.remove('hidden');
 
-        // Mutatie-tab alleen voor Meldkamer
         const mutatieTab = document.querySelector('[data-tab="tab-mutatie"]');
         if (myRole === 'Meldkamer') {
             mutatieTab.style.display = 'block';
@@ -1001,22 +1064,22 @@
             mutatieTab.style.display = 'none';
         }
 
-        // Admin krijgt de "Volgende casus" knop
         if (isAdmin) {
             nextCaseBtn.style.display = 'block';
             nextCaseBtn.onclick = nextCase;
+            resetBtn.style.display = 'inline-block'; // Resetknop tonen voor admin
+            resetBtn.onclick = resetAll;
         } else {
             nextCaseBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
         }
 
         feedKlas.textContent = myClass;
         loadLivefeed();
 
-        // Toon meteen de rolinfo (zonder te wachten op Firebase)
         currentCaseName.textContent = currentScenario.naam;
         updateRoleInfo();
 
-        // Luister naar actieve casus in Firebase (dit overschrijft later de lokale instelling)
         const caseRef = getCaseRef();
         if (caseUnsubscribe) caseUnsubscribe();
         caseUnsubscribe = onValue(caseRef, (snapshot) => {
@@ -1034,7 +1097,6 @@
                     updateRoleInfo();
                 }
             } else {
-                // Geen actieve casus in Firebase, start bij 0
                 currentCaseIndex = 0;
                 loadCase(0);
             }
@@ -1042,18 +1104,15 @@
 
         setStatus('connecting', 'Verbinden...');
 
-        // PeerJS opzetten
         peer = new Peer(myId);
-        peer.on('open', () => {
+        peer.on('open', async () => {
             isConnected = true;
             setStatus('online', 'Online');
             chatInput.disabled = false;
             chatSendBtn.disabled = false;
-            addChat('📡', 'Je bent verbonden met de porto!', true);
             startPeerDiscovery();
-            initMicrophone();
+            await initMicrophone();
         });
-
         peer.on('connection', (conn) => {
             if (conn.peer !== myId) {
                 setupDataConnection(conn);
@@ -1069,15 +1128,15 @@
             }
             call.answer(localStream);
             call.on('stream', (remoteStream) => {
-                // Start audio context bij eerste inkomende stream
                 startAudioContext();
                 const audio = document.createElement('audio');
                 audio.autoplay = true;
                 audio.srcObject = remoteStream;
                 audio.volume = 1.0;
-                audio.muted = false;
-                audio.play().catch(err => console.warn('Audio afspelen mislukt:', err));
+                audio.muted = true;
                 document.body.appendChild(audio);
+                allAudioElements.push(audio);
+                audio.play().catch(err => console.warn('Audio afspelen mislukt:', err));
                 audioConnections.set(call.peer, { call, audio });
             });
             call.on('close', () => {
@@ -1167,6 +1226,8 @@
         microStatus.textContent = '⏳ Microfoon gestopt';
         microStatus.className = 'micro-status';
         retryMicBtn.classList.add('hidden');
+        resetBtn.style.display = 'none';
+        nextCaseBtn.style.display = 'none';
     });
 
     // Tab switching
@@ -1179,7 +1240,7 @@
         });
     });
 
-    // Klik op de pagina om de audio context te starten (Chrome vereist)
+    // Klik op de pagina om de audio context te starten
     document.addEventListener('click', startAudioContext, { once: true });
 
     // Start
