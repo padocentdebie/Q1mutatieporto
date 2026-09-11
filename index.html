@@ -253,6 +253,21 @@
             color: #e0e0e0;
             font-size: 0.9rem;
         }
+
+        /* Docentpaneel */
+        .docent-rij {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 10px; padding: 10px 0; border-bottom: 1px solid #2a3a4a;
+        }
+        .docent-rij:last-child { border-bottom: none; }
+        .docent-rij .naam { font-weight: 600; font-size: 0.95rem; }
+        .docent-rij .peer-id { color: #667788; font-size: 0.7rem; display: block; }
+        .docent-rij select { max-width: 170px; padding: 6px 8px; font-size: 0.85rem; }
+        .rol-wachten { border-color: #6c757d !important; }
+        .rol-burger { border-color: #6c757d !important; color: #aabbcc !important; }
+        .rol-collega { border-color: #28a745 !important; color: #7fe0a0 !important; }
+        .rol-meldkamer { border-color: #f0c040 !important; color: #f0c040 !important; }
+        .docent-hint { color: #8899aa; font-size: 0.8rem; margin-top: 6px; text-align: center; }
     </style>
 </head>
 <body>
@@ -284,6 +299,16 @@
                 <option value="MIKE">MIKE</option>
             </select>
         </div>
+
+        <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="isDocentCheck" style="width:20px; height:20px; accent-color:#f0c040; flex:0 0 auto;" />
+            <label for="isDocentCheck" style="margin:0; cursor:pointer;">👨‍🏫 Ik ben docent (rollen toewijzen)</label>
+        </div>
+        <div class="form-group hidden" id="docentPinGroup">
+            <label>🔑 Docentcode</label>
+            <input type="password" id="docentPinInput" placeholder="Voer de docentcode in" />
+        </div>
+
         <button class="btn btn-success" id="connectBtn">🔗 Verbinden</button>
         <div id="loginError" class="error"></div>
 
@@ -308,7 +333,7 @@
             </div>
             <div class="instructie-stap">
                 <strong>Stap 4: Jouw rol</strong>
-                <p>De <strong>eerste drie</strong> studenten krijgen de rollen <strong>Burger, Collega1, Collega2</strong>. Alle volgende studenten worden <strong>Meldkamer</strong>.</p>
+                <p>De <strong>docent</strong> wijst de rollen toe: <strong>Burger, Collega1, Collega2</strong> en <strong>Meldkamer</strong>. Wacht tot je rol verschijnt.</p>
                 <ul>
                     <li><strong>Burger:</strong> Heeft informatie, maar <span class="waarschuwing">geen PTT</span> (geen spraak).</li>
                     <li><strong>Collega 1 & 2:</strong> Agenten met PTT, spreken via de porto.</li>
@@ -357,6 +382,10 @@
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-weight:bold; color:#f0c040;" id="displayName">-</span>
                     <span id="roleDisplay" class="role-badge">Rol</span>
+                </div>
+                <div id="waitingBanner" class="rolinfo" style="font-size:0.95rem; border-left-color:#4a90d9;">
+                    <span class="label">Status</span>
+                    <div class="content">⏳ Wachten tot de docent je rol toewijst...</div>
                 </div>
                 <div class="status-bar">
                     <span>
@@ -434,11 +463,59 @@
             </div>
         </div>
     </div>
+
+    <!-- DOCENT SCHERM -->
+    <div id="docentScreen" class="hidden">
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 style="margin:0; border:none; padding:0;">👨‍🏫 Docentenpaneel</h2>
+                <span class="role-badge" style="background:#f0c040; color:#1a2332;">Klas <span id="docentKlas">-</span></span>
+            </div>
+            <p class="sub">Wijs per student een rol toe. Wijzigingen zijn direct zichtbaar bij de student.</p>
+
+            <div class="status-bar">
+                <span><span class="status-led online"></span> <span id="docentStatusText">Verbonden met Firebase</span></span>
+                <span id="docentUserCount" style="font-size:0.8rem;">👥 0</span>
+            </div>
+
+            <div id="docentStudentList" class="mutatie-form">
+                <div class="empty-state">⏳ Wachten op studenten...</div>
+            </div>
+            <div class="docent-hint">Wijzig een rol via het dropdownmenu. De student ziet dit direct.</div>
+
+            <div class="admin-bar" style="margin-top:12px;">
+                <button class="btn btn-warning" id="autoAssignBtn">🎲 Automatisch toewijzen</button>
+                <button class="btn btn-primary" id="docentNextCaseBtn">➡️ Volgende casus</button>
+                <button class="btn btn-danger" id="docentResetBtn">🔄 Reset alles</button>
+            </div>
+
+            <button class="btn btn-danger" id="docentDisconnectBtn" style="margin-top:10px;">🚪 Verbinding verbreken</button>
+
+            <div class="instructie-blok" style="margin-top:16px;">
+                <h3>📋 Rollenoverzicht</h3>
+                <div class="instructie-stap">
+                    <strong>Burger</strong>
+                    <p>Heeft informatie, maar <span class="waarschuwing">geen PTT</span> (geen spraak). Kan wel chatten.</p>
+                </div>
+                <div class="instructie-stap">
+                    <strong>Collega 1 &amp; 2</strong>
+                    <p>Agenten met PTT. Spreken via de porto.</p>
+                </div>
+                <div class="instructie-stap">
+                    <strong>Meldkamer</strong>
+                    <p>Het OC. Stuurt de porto-communicatie en vult de mutatie in.</p>
+                </div>
+                <div class="instructie-tip">
+                    💡 Gebruik <strong>🎲 Automatisch toewijzen</strong> om snel de eerste drie studenten Burger/Collega1/Collega2 te geven en de rest Meldkamer. Daarna kun je handmatig bijstellen.
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove, onDisconnect, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set, update, onValue, remove, onDisconnect, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBOo2LzR1IBnsiBR2SCwPJABtaRv0tpKQ4",
@@ -451,6 +528,9 @@
     };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    // ⚠️ DOCENTCODE — pas dit aan naar wens
+    const DOCENT_CODE = 'docent';
 
     // ----- 5 SCENARIO'S -----
     const SCENARIOS = [
@@ -509,17 +589,25 @@
     // ----- HULPFUNCTIES -----
     function getCaseRef() { return ref(db, `cases/${myClass}`); }
     function getMutatieRef() { return ref(db, `mutaties/${myClass}`); }
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
 
     // ----- DOM REFS -----
     const $ = id => document.getElementById(id);
     const loginScreen = $('loginScreen');
     const mainScreen = $('mainScreen');
+    const docentScreen = $('docentScreen');
     const usernameInput = $('usernameInput');
     const classSelect = $('classSelect');
     const connectBtn = $('connectBtn');
     const loginError = $('loginError');
+    const isDocentCheck = $('isDocentCheck');
+    const docentPinGroup = $('docentPinGroup');
+    const docentPinInput = $('docentPinInput');
     const displayName = $('displayName');
     const roleDisplay = $('roleDisplay');
+    const waitingBanner = $('waitingBanner');
     const statusLed = $('statusLed');
     const statusText = $('statusText');
     const userCount = $('userCount');
@@ -531,7 +619,7 @@
     const chatInput = $('chatInput');
     const chatSendBtn = $('chatSendBtn');
     const disconnectBtn = $('disconnectBtn');
-    const resetBtn = $('resetBtn'); // Nieuw
+    const resetBtn = $('resetBtn');
     const mutWie = $('mutWie');
     const mutWat = $('mutWat');
     const mutWaar = $('mutWaar');
@@ -548,6 +636,16 @@
     const currentCaseName = $('currentCaseName');
     const nextCaseBtn = $('nextCaseBtn');
 
+    // Docent DOM
+    const docentKlas = $('docentKlas');
+    const docentStudentList = $('docentStudentList');
+    const docentUserCount = $('docentUserCount');
+    const docentStatusText = $('docentStatusText');
+    const autoAssignBtn = $('autoAssignBtn');
+    const docentNextCaseBtn = $('docentNextCaseBtn');
+    const docentResetBtn = $('docentResetBtn');
+    const docentDisconnectBtn = $('docentDisconnectBtn');
+
     // ----- STATE -----
     let peer = null;
     let localStream = null;
@@ -563,18 +661,24 @@
     const dataConnections = new Map();
     const audioConnections = new Map();
     let peerListUnsubscribe = null;
+    let roleUnsubscribe = null;
     let peersRef = null;
     let microEnabled = false;
     let isMicInitializing = false;
     let isAdmin = false;
+    let isDocent = false;
     let caseUnsubscribe = null;
     let mutatieUnsubscribe = null;
+    let docentPeersUnsubscribe = null;
     let audioContextStarted = false;
-    // ----- AUDIO VARIABELEN (toegevoegd) -----
     let allAudioElements = [];
     let audioUnmuted = false;
 
     function generateId() { return 'P-' + Math.random().toString(36).substr(2, 8); }
+
+    function canSpeak() {
+        return myRole === 'Collega1' || myRole === 'Collega2' || myRole === 'Meldkamer';
+    }
 
     function setStatus(state, text) {
         const ledMap = { online: 'online', offline: 'offline', speaking: 'speaking' };
@@ -643,7 +747,7 @@
             microStatus.textContent = '✅ Microfoon gereed';
             microStatus.className = 'micro-status ok';
             retryMicBtn.classList.add('hidden');
-            if (myRole !== 'Burger') {
+            if (canSpeak()) {
                 pttButton.disabled = false;
                 pttButton.classList.remove('disabled');
             } else {
@@ -692,7 +796,7 @@
     // ----- PTT -----
     function startSpeaking() {
         unmuteAllAudio();
-        if (!isConnected || !microEnabled || isSpeaking || myRole === 'Burger') return;
+        if (!isConnected || !microEnabled || isSpeaking || !canSpeak()) return;
         startAudioContext();
         isSpeaking = true;
         pttButton.classList.add('active');
@@ -749,7 +853,7 @@
             connections.add(peerId);
             dataConnections.set(peerId, conn);
             conn.send({ type: 'hello', username: myUsername, role: myRole, class: myClass });
-            if (microEnabled && localStream && myRole !== 'Burger') {
+            if (microEnabled && localStream && canSpeak()) {
                 callPeer(peerId);
             }
             updateUserList();
@@ -784,9 +888,9 @@
     function startPeerDiscovery() {
         peersRef = ref(db, `porto_peers/${myClass}`);
         const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
-        set(myPeerRef, {
+        // update i.p.v. set, zodat een toegewezen rol niet overschreven wordt
+        update(myPeerRef, {
             username: myUsername,
-            role: myRole,
             timestamp: serverTimestamp()
         });
         onDisconnect(myPeerRef).remove();
@@ -810,19 +914,66 @@
         });
     }
 
-    // ----- ROLTOEWIJZING -----
-    async function assignRole() {
-        const peersRef = ref(db, `porto_peers/${myClass}`);
-        const snapshot = await new Promise(resolve => onValue(peersRef, resolve, { onlyOnce: true }));
-        const data = snapshot.val();
-        const count = data ? Object.keys(data).length : 0;
-        let role;
-        if (count === 0) role = 'Burger';
-        else if (count === 1) role = 'Collega1';
-        else if (count === 2) role = 'Collega2';
-        else role = 'Meldkamer';
-        const isAdmin = (count === 3);
-        return { role, isAdmin };
+    // ----- ROL LUISTEREN (student wacht op docent) -----
+    function startRoleListener() {
+        if (roleUnsubscribe) roleUnsubscribe();
+        const roleRef = ref(db, `porto_peers/${myClass}/${myId}/role`);
+        roleUnsubscribe = onValue(roleRef, (snap) => {
+            const r = snap.val();
+            if (r && r !== 'Wachten') {
+                applyRole(r);
+            }
+        });
+    }
+
+    // ----- ROL TOEPASSEN -----
+    function applyRole(newRole) {
+        if (!newRole || newRole === myRole) return;
+        myRole = newRole;
+
+        roleDisplay.textContent = myRole;
+        if (myRole === 'Burger') {
+            roleDisplay.style.background = '#6c757d';
+            roleDisplay.style.color = '#ffffff';
+        } else if (myRole === 'Meldkamer') {
+            roleDisplay.style.background = '#f0c040';
+            roleDisplay.style.color = '#1a2332';
+        } else {
+            roleDisplay.style.background = '#28a745';
+            roleDisplay.style.color = '#ffffff';
+        }
+
+        if (waitingBanner) waitingBanner.classList.add('hidden');
+
+        const mutatieTab = document.querySelector('[data-tab="tab-mutatie"]');
+        if (myRole === 'Meldkamer') {
+            mutatieTab.style.display = 'block';
+        } else {
+            mutatieTab.style.display = 'none';
+            if (document.getElementById('tab-mutatie').classList.contains('active')) {
+                document.querySelector('[data-tab="tab-porto"]').click();
+            }
+        }
+
+        // PTT aan/uit
+        if (canSpeak() && microEnabled) {
+            pttButton.disabled = false;
+            pttButton.classList.remove('disabled');
+        } else {
+            pttButton.disabled = true;
+            pttButton.classList.add('disabled');
+            if (isSpeaking) stopSpeaking();
+        }
+
+        // Audio-oproepen starten zodra iemand mag spreken
+        if (canSpeak() && microEnabled && localStream) {
+            for (let peerId of connections) {
+                if (!audioConnections.has(peerId)) callPeer(peerId);
+            }
+        }
+
+        updateRoleInfo();
+        addChat('🎖️', `Je rol is toegewezen: ${myRole}`, true);
     }
 
     // ----- CASUS BEHEER -----
@@ -841,7 +992,7 @@
         saveIndicator.textContent = '';
         if (myRole === 'Meldkamer') {
             addChat('📢', `Nieuwe casus gestart: ${currentScenario.naam}. Begin met het uitvragen van de 7 W's.`, true);
-        } else {
+        } else if (!isDocent) {
             addChat('📢', `Nieuwe casus: ${currentScenario.naam}. Bereid je voor op de simulatie.`, true);
         }
         const caseRef = getCaseRef();
@@ -951,17 +1102,16 @@
 
     // ----- ROLINFO -----
     function updateRoleInfo() {
-        if (!myRoleInfo) {
-            console.warn('myRoleInfo element niet gevonden');
-            return;
-        }
+        if (!myRoleInfo) return;
         if (!currentScenario) {
             myRoleInfo.textContent = 'Geen actieve casus. Wacht op de docent.';
             otherRolesInfo.innerHTML = '';
             return;
         }
         const roles = currentScenario.rollen;
-        const myInfo = roles[myRole] ? roles[myRole].info : 'Geen informatie voor deze rol.';
+        const myInfo = roles[myRole]
+            ? roles[myRole].info
+            : '⏳ Je rol is nog niet toegewezen door de docent.\nWacht tot de docent je een rol geeft (Burger, Collega1, Collega2 of Meldkamer).';
         myRoleInfo.textContent = myInfo;
 
         let otherHtml = '';
@@ -972,11 +1122,123 @@
         otherRolesInfo.innerHTML = otherHtml || '<div class="rolinfo">Geen andere rollen.</div>';
     }
 
-    // ----- RESET FUNCTIE -----
-    async function resetAll() {
-        if (!confirm('⚠️ Weet je zeker dat je ALLE gebruikers wilt verwijderen en de casus wilt resetten? Dit kan niet ongedaan worden gemaakt.')) return;
+    // =========================================================
+    // ====================  DOCENT  ===========================
+    // =========================================================
 
-        // Verwijder alle peers, cases en mutaties
+    async function connectAsDocent() {
+        const username = usernameInput.value.trim() || 'Docent';
+        const klas = classSelect.value;
+        const pin = docentPinInput.value.trim();
+
+        if (pin !== DOCENT_CODE) {
+            loginError.textContent = '❌ Onjuiste docentcode.';
+            return;
+        }
+        loginError.textContent = '';
+
+        myUsername = username;
+        myClass = klas;
+        isDocent = true;
+        isAdmin = true;
+        myRole = 'Docent';
+        currentCaseIndex = 0;
+
+        docentKlas.textContent = myClass;
+        loginScreen.classList.add('hidden');
+        mainScreen.classList.add('hidden');
+        docentScreen.classList.remove('hidden');
+
+        // Bepaal huidige casus of start casus 0
+        try {
+            const snap = await new Promise(resolve => onValue(getCaseRef(), resolve, { onlyOnce: true }));
+            if (!snap.exists()) {
+                currentCaseIndex = 0;
+                loadCase(0);
+            } else {
+                currentCaseIndex = snap.val().index || 0;
+                currentScenario = SCENARIOS[currentCaseIndex] || SCENARIOS[0];
+                currentCaseName.textContent = currentScenario ? currentScenario.naam : '-';
+            }
+        } catch (err) {
+            console.warn('Casus ophalen mislukt:', err);
+            currentCaseIndex = 0;
+            loadCase(0);
+        }
+
+        startDocentListener();
+    }
+
+    function startDocentListener() {
+        if (docentPeersUnsubscribe) docentPeersUnsubscribe();
+        const peersRef = ref(db, `porto_peers/${myClass}`);
+        docentPeersUnsubscribe = onValue(peersRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const entries = Object.entries(data);
+            docentUserCount.textContent = `👥 ${entries.length}`;
+
+            if (entries.length === 0) {
+                docentStudentList.innerHTML = '<div class="empty-state">⏳ Wachten op studenten...<br><span style="font-size:0.8rem;">Studenten verschijnen hier zodra ze verbonden zijn.</span></div>';
+                return;
+            }
+
+            // Sorteer op binnenkomst
+            entries.sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+
+            const rollen = ['Wachten', 'Burger', 'Collega1', 'Collega2', 'Meldkamer'];
+            let html = '';
+            for (const [id, info] of entries) {
+                const naam = escapeHtml(info.username || 'Onbekend');
+                const rol = info.role || 'Wachten';
+                let cls = 'rol-wachten';
+                if (rol === 'Burger') cls = 'rol-burger';
+                else if (rol === 'Collega1' || rol === 'Collega2') cls = 'rol-collega';
+                else if (rol === 'Meldkamer') cls = 'rol-meldkamer';
+
+                html += `
+                    <div class="docent-rij">
+                        <div>
+                            <span class="naam">👤 ${naam}</span>
+                            <span class="peer-id">${escapeHtml(id)}</span>
+                        </div>
+                        <select class="docent-role-select ${cls}" data-peer="${escapeHtml(id)}">
+                            ${rollen.map(r => `<option value="${r}" ${r === rol ? 'selected' : ''}>${r}</option>`).join('')}
+                        </select>
+                    </div>`;
+            }
+            docentStudentList.innerHTML = html;
+
+            docentStudentList.querySelectorAll('.docent-role-select').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    const peerId = e.target.dataset.peer;
+                    const nieuweRol = e.target.value;
+                    set(ref(db, `porto_peers/${myClass}/${peerId}/role`), nieuweRol)
+                        .catch(err => console.error('Rol toewijzen mislukt:', err));
+                });
+            });
+        });
+    }
+
+    async function autoAssignRoles() {
+        try {
+            const snap = await new Promise(resolve => onValue(ref(db, `porto_peers/${myClass}`), resolve, { onlyOnce: true }));
+            const data = snap.val() || {};
+            const entries = Object.entries(data);
+            entries.sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+
+            const volgorde = ['Burger', 'Collega1', 'Collega2'];
+            const beloftes = entries.map(([id], i) => {
+                const rol = volgorde[i] || 'Meldkamer';
+                return set(ref(db, `porto_peers/${myClass}/${id}/role`), rol);
+            });
+            await Promise.all(beloftes);
+        } catch (err) {
+            console.error('Automatisch toewijzen mislukt:', err);
+        }
+    }
+
+    async function docentResetAll() {
+        if (!confirm(`⚠️ Weet je zeker dat je ALLE studenten, casussen en mutaties van klas ${myClass} wilt verwijderen?`)) return;
         try {
             await remove(ref(db, `porto_peers/${myClass}`));
             await remove(ref(db, `cases/${myClass}`));
@@ -984,46 +1246,29 @@
         } catch (err) {
             console.error('Fout bij resetten:', err);
         }
-
-        // Eigen verbinding verbreken en terug naar login
-        if (peer) {
-            peer.destroy();
-            peer = null;
-        }
-        isConnected = false;
-        connections.clear();
-        dataConnections.clear();
-        audioConnections.clear();
-        if (peerListUnsubscribe) peerListUnsubscribe();
-        if (caseUnsubscribe) caseUnsubscribe();
-        if (mutatieUnsubscribe) mutatieUnsubscribe();
-        if (localStream) {
-            localStream.getTracks().forEach(t => t.stop());
-            localStream = null;
-        }
-        loginScreen.classList.remove('hidden');
-        mainScreen.classList.add('hidden');
-        setStatus('offline', 'Offline');
-        chatInput.disabled = true;
-        chatSendBtn.disabled = true;
-        pttButton.disabled = true;
-        pttButton.classList.remove('active');
-        pttButton.classList.add('disabled');
-        pttButton.textContent = '🎤 HOU IN';
-        microEnabled = false;
-        microStatus.textContent = '⏳ Microfoon gestopt';
-        microStatus.className = 'micro-status';
-        retryMicBtn.classList.add('hidden');
-        resetBtn.style.display = 'none';
-        nextCaseBtn.style.display = 'none';
-        // Reset formulier
-        mutWie.value = mutWat.value = mutWaar.value = mutWaarmee.value = mutWijze.value = mutWaarom.value = '';
-        mutWanneer.value = '';
-        saveIndicator.textContent = '';
-        livefeedContainer.innerHTML = '<div class="empty-state">⏳ Wachten op mutatie...</div>';
+        currentCaseIndex = 0;
+        loadCase(0);
+        docentStudentList.innerHTML = '<div class="empty-state">⏳ Wachten op studenten...</div>';
     }
 
-    // ----- HOOFDFUNCTIE (verbinden) -----
+    function disconnectDocent() {
+        if (docentPeersUnsubscribe) { docentPeersUnsubscribe(); docentPeersUnsubscribe = null; }
+        if (caseUnsubscribe) { caseUnsubscribe(); caseUnsubscribe = null; }
+        if (mutatieUnsubscribe) { mutatieUnsubscribe(); mutatieUnsubscribe = null; }
+        isDocent = false;
+        isAdmin = false;
+        docentScreen.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        isDocentCheck.checked = false;
+        docentPinGroup.classList.add('hidden');
+        docentPinInput.value = '';
+        loginError.textContent = '';
+    }
+
+    // =========================================================
+    // ==================  STUDENT VERBINDEN  ==================
+    // =========================================================
+
     async function connectToRoom() {
         const username = usernameInput.value.trim();
         const klas = classSelect.value;
@@ -1031,52 +1276,30 @@
             loginError.textContent = 'Vul je naam in.';
             return;
         }
-        if (klas === 'INDIE') {
-            loginError.textContent = 'Kies een geldige klas.';
-            return;
-        }
 
         myUsername = username;
         myClass = klas;
         myId = generateId();
-
-        const { role, isAdmin: admin } = await assignRole();
-        myRole = role;
-        isAdmin = admin;
+        myRole = 'Wachten';
+        isAdmin = false;
 
         currentCaseIndex = 0;
         currentScenario = SCENARIOS[0];
 
         displayName.textContent = myUsername;
-        roleDisplay.textContent = myRole;
-        if (myRole === 'Burger') {
-            roleDisplay.style.background = '#6c757d';
-        } else if (myRole === 'Meldkamer') {
-            roleDisplay.style.background = '#f0c040';
-            roleDisplay.style.color = '#1a2332';
-        } else {
-            roleDisplay.style.background = '#28a745';
-        }
+        roleDisplay.textContent = '⏳ Wachten op rol...';
+        roleDisplay.style.background = '#4a90d9';
+        roleDisplay.style.color = '#ffffff';
+        if (waitingBanner) waitingBanner.classList.remove('hidden');
 
         loginScreen.classList.add('hidden');
         mainScreen.classList.remove('hidden');
 
-        const mutatieTab = document.querySelector('[data-tab="tab-mutatie"]');
-        if (myRole === 'Meldkamer') {
-            mutatieTab.style.display = 'block';
-        } else {
-            mutatieTab.style.display = 'none';
-        }
-
-        if (isAdmin) {
-            nextCaseBtn.style.display = 'block';
-            nextCaseBtn.onclick = nextCase;
-            resetBtn.style.display = 'inline-block'; // Resetknop tonen voor admin
-            resetBtn.onclick = resetAll;
-        } else {
-            nextCaseBtn.style.display = 'none';
-            resetBtn.style.display = 'none';
-        }
+        // Mutatietab verbergen tot rol bekend is
+        document.querySelector('[data-tab="tab-mutatie"]').style.display = 'none';
+        // Admin-knoppen altijd verborgen voor studenten (docent beheert de casus)
+        nextCaseBtn.style.display = 'none';
+        resetBtn.style.display = 'none';
 
         feedKlas.textContent = myClass;
         loadLivefeed();
@@ -1115,6 +1338,7 @@
             chatInput.disabled = false;
             chatSendBtn.disabled = false;
             startPeerDiscovery();
+            startRoleListener();
             await initMicrophone();
         });
         peer.on('connection', (conn) => {
@@ -1126,9 +1350,9 @@
         });
 
         peer.on('call', (call) => {
-            if (!localStream || !microEnabled) { 
-                call.answer(); 
-                return; 
+            if (!localStream || !microEnabled) {
+                call.answer();
+                return;
             }
             call.answer(localStream);
             call.on('stream', (remoteStream) => {
@@ -1172,7 +1396,24 @@
     }
 
     // ----- EVENT LISTENERS -----
-    connectBtn.addEventListener('click', connectToRoom);
+    connectBtn.addEventListener('click', () => {
+        if (isDocentCheck.checked) {
+            connectAsDocent();
+        } else {
+            connectToRoom();
+        }
+    });
+
+    isDocentCheck.addEventListener('change', () => {
+        docentPinGroup.classList.toggle('hidden', !isDocentCheck.checked);
+        if (isDocentCheck.checked) docentPinInput.focus();
+    });
+
+    // Docent-knoppen
+    autoAssignBtn.addEventListener('click', autoAssignRoles);
+    docentNextCaseBtn.addEventListener('click', () => nextCase());
+    docentResetBtn.addEventListener('click', docentResetAll);
+    docentDisconnectBtn.addEventListener('click', disconnectDocent);
 
     pttButton.addEventListener('mousedown', startSpeaking);
     pttButton.addEventListener('mouseup', stopSpeaking);
@@ -1185,7 +1426,7 @@
         if (!text) return;
         const data = { type: 'chat', sender: myUsername, role: myRole, class: myClass, text };
         for (let conn of dataConnections.values()) {
-            try { conn.send(data); } catch(e) {}
+            try { conn.send(data); } catch (e) {}
         }
         addChat(`📤 ${myUsername} (${myRole})`, text);
         chatInput.value = '';
@@ -1207,6 +1448,7 @@
         audioConnections.clear();
         isConnected = false;
         if (peerListUnsubscribe) peerListUnsubscribe();
+        if (roleUnsubscribe) roleUnsubscribe();
         if (peersRef) {
             const myPeerRef = ref(db, `porto_peers/${myClass}/${myId}`);
             remove(myPeerRef);
@@ -1232,6 +1474,8 @@
         retryMicBtn.classList.add('hidden');
         resetBtn.style.display = 'none';
         nextCaseBtn.style.display = 'none';
+        myRole = '';
+        loginError.textContent = '';
     });
 
     // Tab switching
@@ -1250,6 +1494,7 @@
     // Start
     loginScreen.classList.remove('hidden');
     mainScreen.classList.add('hidden');
+    docentScreen.classList.add('hidden');
 </script>
 </body>
 </html>
